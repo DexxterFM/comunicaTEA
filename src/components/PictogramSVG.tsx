@@ -42,12 +42,20 @@ const fallbackFontSize = (label: string) => {
 
 export const pictogramAssetFor = (label = '', emoji = ''): string | null => {
   const text = normalize(label);
-  const em = emoji.trim();
+  const em = normalize(emoji);
+  const directAssets = new Set([
+    'quero', 'comer', 'beber', 'brincar', 'dormir', 'ajuda', 'maca', 'banana',
+    'biscoito', 'bolacha', 'banheiro', 'dor', 'feliz', 'triste', 'nao', 'sim',
+    'tablet', 'cantar', 'ouvir', 'ver'
+  ]);
+
+  if (directAssets.has(em)) return em === 'bolacha' ? 'biscoito' : em;
 
   if (text.includes('quero') && (text.includes('agua') || text.includes('beber'))) return 'beber';
   if (text.includes('quero') && text.includes('comer')) return 'comer';
   if (text.includes('quero') && text.includes('abraco')) return 'ajuda';
   if (text.includes('ajuda')) return 'ajuda';
+  if (text.includes('abraco')) return 'ajuda';
   if (text.includes('me da')) return 'quero';
   if (text === 'quero') return 'quero';
   if (text === 'sim') return 'sim';
@@ -156,4 +164,3 @@ export const PictogramSVG: React.FC<PictogramSVGProps> = ({
     </svg>
   );
 };
-

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'communicatea-v2';
+const CACHE_NAME = 'communicatea-v3';
 const BASE_URL = new URL(self.registration.scope).pathname.replace(/\/$/, '');
 const ASSETS = [
   `${BASE_URL}/`,
@@ -30,6 +30,12 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   if (!event.request.url.startsWith(self.location.origin) && !event.request.url.startsWith('http')) return;
+
+  const requestUrl = new URL(event.request.url);
+  if (requestUrl.pathname.startsWith(`${BASE_URL}/api`) || requestUrl.pathname.startsWith('/api')) {
+    event.respondWith(fetch(event.request, { cache: 'no-store' }));
+    return;
+  }
 
   if (event.request.mode === 'navigate') {
     event.respondWith(

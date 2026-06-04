@@ -285,6 +285,7 @@ export default function App() {
 
   // Speech availability list
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const speechUnlockedRef = useRef(false);
 
   // Load browser voices
   useEffect(() => {
@@ -298,6 +299,36 @@ export default function App() {
       window.speechSynthesis.onvoiceschanged = listSpeechVoices;
     }
   }, []);
+
+  const unlockSpeechSynthesis = () => {
+    if (!('speechSynthesis' in window) || speechUnlockedRef.current) return;
+    speechUnlockedRef.current = true;
+    window.speechSynthesis.resume();
+    setAvailableVoices(window.speechSynthesis.getVoices());
+  };
+
+  const requestLandscapeOrientation = async () => {
+    const orientation = window.screen?.orientation as ScreenOrientation & {
+      lock?: (orientation: 'landscape') => Promise<void>;
+    };
+    if (!orientation?.lock) return;
+    try {
+      await orientation.lock('landscape');
+    } catch (e) {
+      // iOS/Safari and some Android browsers only allow this in installed fullscreen PWAs.
+      console.warn('Landscape orientation lock unavailable in this browser mode.', e);
+    }
+  };
+
+  useEffect(() => {
+    if (currentView !== 'patient-grid') return;
+    requestLandscapeOrientation();
+  }, [currentView]);
+
+  const handlePatientCanvasPointerDown = () => {
+    unlockSpeechSynthesis();
+    requestLandscapeOrientation();
+  };
 
   // Sync / Refresh Patients Database initially
   useEffect(() => {
@@ -338,14 +369,14 @@ export default function App() {
         if (activePat) setSelectedPatient(activePat);
 
         // Fetch AAC Profile
-        const profRes = await fetch(`/api/patients/${selectedPatientId}/profile`);
+        const profRes = await fetch(`/api/patients/${selectedPatientId}/profile?v=${Date.now()}`, { cache: 'no-store' });
         if (profRes.ok) {
           const profData = await profRes.json();
           setProfile(profData);
         }
 
         // Fetch PECS Boards
-        const boardsRes = await fetch(`/api/patients/${selectedPatientId}/boards`);
+        const boardsRes = await fetch(`/api/patients/${selectedPatientId}/boards?v=${Date.now()}`, { cache: 'no-store' });
         if (boardsRes.ok) {
           const boardsData = await boardsRes.json();
           setBoards(boardsData);
@@ -376,7 +407,7 @@ export default function App() {
     if (!selectedBoardId) return;
     const fetchBoardInfo = async () => {
       try {
-        const res = await fetch(`/api/boards/${selectedBoardId}`);
+        const res = await fetch(`/api/boards/${selectedBoardId}?v=${Date.now()}`, { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           setBoardDetails(data);
@@ -407,6 +438,7 @@ export default function App() {
   // Speaks out the Brazilian Portuguese text cleanly with customized parameters
   const speakText = (text: string) => {
     if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.resume();
     window.speechSynthesis.cancel();
 
     // Process pronunciation exceptions from the patient's active profile
@@ -434,7 +466,7 @@ export default function App() {
       utterance.rate = profile.preferredVoiceSpeechRate || 1.0;
       utterance.pitch = profile.preferredVoicePitch || 1.0;
 
-      const voices = window.speechSynthesis.getVoices();
+      const voices = availableVoices.length > 0 ? availableVoices : window.speechSynthesis.getVoices();
       const ptBRVoices = voices.filter(v => v.lang.includes('pt-BR') || v.lang.includes('pt'));
       
       let matchedVoice: SpeechSynthesisVoice | undefined;
@@ -1519,7 +1551,11 @@ export default function App() {
 
       {/* ---------------------------- SCREEN 2: PACIENT EXCLUSIVE AREA ---------------------------- */}
       {currentView === 'patient-grid' && selectedPatient && (
-        <div id="patient-only-canvas" className="flex-1 flex flex-col bg-[#cbd2db] text-slate-950 font-sans h-screen overflow-hidden select-none print:hidden">
+        <div
+          id="patient-only-canvas"
+          className="flex-1 flex flex-col bg-[#cbd2db] text-slate-950 font-sans h-screen overflow-hidden select-none print:hidden"
+          onPointerDown={handlePatientCanvasPointerDown}
+        >
           
           {/* 1. TD SNAP HIGH-FIDELITY DARK TOP BAR */}
           <div className="bg-[#1a1c20] text-white py-1.5 px-3 flex items-center justify-between shadow-md select-none shrink-0 border-b border-black">
@@ -1782,11 +1818,13 @@ export default function App() {
                       {sentenceButtons.map((btn, index) => (
                         <div 
                           key={`patient-sent-${index}`}
-                          className="bg-neutral-50 border border-neutral-300 rounded-xl p-1.5 flex flex-col items-center justify-center w-[64px] shrink-0 text-center relative group shadow-sm transition-transform hover:scale-105"
+                          className="bg-white border-2 border-neutral-900 rounded-xl p-1.5 flex items-center justify-center w-[78px] h-[78px] shrink-0 text-center relative group shadow-sm transition-transform hover:scale-105"
+                          title={btn.label}
+                          aria-label={btn.label}
                         >
-                          <div className="w-8 h-8 flex items-center justify-center mb-1">
+                          <div className="w-full h-full flex items-center justify-center">
                             {btn.imageUrl.startsWith('data:') ? (
-                              <img src={btn.imageUrl} alt={btn.label} className="max-h-full max-w-full object-contain" />
+                              <img src={btn.imageUrl} alt={btn.label} className="w-full h-full object-contain" />
                             ) : (
                               <PictogramSVG 
                                 label={btn.label} 
@@ -1797,9 +1835,6 @@ export default function App() {
                               />
                             )}
                           </div>
-                          <span className="text-[9.5px] font-extrabold truncate w-full tracking-tight text-slate-800 leading-tight border-t border-gray-200 pt-0.5 mt-0.5">
-                            {btn.label}
-                          </span>
                           <button 
                             onClick={(e) => {
                               e.stopPropagation();
@@ -2001,10 +2036,11 @@ export default function App() {
                             playTactileFeedback();
                             speakText(item.text);
                           }}
-                          className={`flex flex-col items-center justify-between p-4 rounded-2xl border-2 shadow transition-all transform hover:scale-102 active:scale-95 text-center min-h-[90px] cursor-pointer ${item.color}`}
+                          className="flex items-center justify-center p-2 rounded-xl border-2 border-neutral-950 bg-white shadow-sm transition-all transform hover:scale-102 active:scale-95 text-center min-h-[112px] cursor-pointer"
+                          title={item.label}
+                          aria-label={item.label}
                         >
-                          <span className="text-3xl select-none mb-1">{item.icon}</span>
-                          <span className="text-xs sm:text-sm font-black leading-tight truncate w-full select-none">{item.label}</span>
+                          <PictogramSVG label={item.text} emoji={item.icon} className="w-full h-full" />
                         </button>
                       ))}
                     </div>
@@ -2023,8 +2059,8 @@ export default function App() {
                           {activeCategoryId === 'all' ? (
                             
                             /* CATEGORIES DIRECTORY NAVIGATION MODE! (The glorious pink folders) */
-                            <div 
-                              className="grid gap-3 h-full pb-2"
+                          <div 
+                              className="grid gap-2 h-full rounded-2xl bg-slate-300 p-2"
                               style={{
                                 gridTemplateColumns: `repeat(${profile.gridSizeColumns || 4}, minmax(0, 1fr))`,
                                 gridTemplateRows: `repeat(${profile.gridSizeRows || 3}, minmax(0, 1fr))`
@@ -2123,17 +2159,18 @@ export default function App() {
                                       onClick: () => handleAACButtonClick(btn)
                                     };
 
-                                    const activeCatCol = boardDetails.categories.find(c => c.id === btn.categoryId)?.colorClass || 'bg-white text-slate-900';
-                                    const cellBorderColor = profile.highContrast 
+                                  const cellBorderColor = profile.highContrast 
                                       ? 'border-4 border-yellow-400 bg-neutral-900 text-yellow-300' 
-                                      : `${activeCatCol} border-2 border-transparent shadow hover:shadow-md`;
+                                      : 'bg-white text-slate-900 border-2 border-neutral-950 shadow-sm hover:shadow-md';
 
                                     return (
                                       <button
                                         key={btn.id}
                                         id={`patient-btn-${btn.id}`}
                                         {...clickProps}
-                                        className={`relative overflow-hidden flex flex-col items-center justify-between p-3.5 rounded-[22px] cursor-pointer select-none transition-all transform text-center h-full w-full ${cellBorderColor} ${isBeingHeld ? 'scale-97 ring-4 ring-emerald-500/80 border-transparent shadow-inner' : 'hover:scale-102 active:scale-95'}`}
+                                        className={`relative overflow-hidden flex items-center justify-center p-2 sm:p-3 rounded-xl cursor-pointer select-none transition-all transform text-center h-full w-full ${cellBorderColor} ${isBeingHeld ? 'scale-97 ring-4 ring-emerald-500/80 border-transparent shadow-inner' : 'hover:scale-102 active:scale-95'}`}
+                                        title={btn.label}
+                                        aria-label={btn.label}
                                       >
                                         {/* Radial / bar holding indicator (Acceptance Time) */}
                                         {isBeingHeld && (
@@ -2147,14 +2184,13 @@ export default function App() {
                                           </div>
                                         )}
 
-                                        <div className="flex-1 flex items-center justify-center overflow-hidden my-auto w-full z-0">
+                                        <div className="flex items-center justify-center overflow-hidden w-full h-full z-0">
                                           {btn.imageUrl.startsWith('data:') ? (
-                                            <img src={btn.imageUrl} alt={btn.label} className="max-h-[85%] max-w-[85%] object-contain rounded-md" />
+                                            <img src={btn.imageUrl} alt={btn.label} className="w-full h-full object-contain rounded-md" />
                                           ) : (
-                                            <PictogramSVG label={btn.label} emoji={btn.imageUrl} category={boardDetails?.categories.find(c => c.id === btn.categoryId)?.name} className="max-h-full max-w-full" />
+                                            <PictogramSVG label={btn.label} emoji={btn.imageUrl} category={boardDetails?.categories.find(c => c.id === btn.categoryId)?.name} className="w-full h-full" />
                                           )}
                                         </div>
-                                        <span className="text-base sm:text-xl font-bold tracking-tight mt-1 truncate w-full select-none z-0">{btn.label}</span>
                                       </button>
                                     );
                                   } else {

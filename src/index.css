@@ -6,3 +6,23 @@
   --font-display: "Outfit", var(--font-sans);
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
+
+@media (orientation: portrait) and (max-width: 1024px) and (pointer: coarse) {
+  #patient-only-canvas::after {
+    content: "Gire o celular ou tablet para usar o ComunicaTEA na horizontal.";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: #cbd2db;
+    color: #111827;
+    text-align: center;
+    font-family: "Outfit", ui-sans-serif, system-ui, sans-serif;
+    font-size: 24px;
+    font-weight: 900;
+    line-height: 1.15;
+  }
+}
