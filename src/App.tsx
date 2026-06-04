@@ -293,6 +293,9 @@ export default function App() {
   // Speech availability list
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const speechUnlockedRef = useRef(false);
+  const speechRetryRef = useRef<number | null>(null);
+  const profileAutoSaveTimerRef = useRef<number | null>(null);
+  const lastSavedProfileRef = useRef('');
 
   // Load browser voices
   useEffect(() => {
@@ -379,6 +382,7 @@ export default function App() {
         const profRes = await fetch(`/api/patients/${selectedPatientId}/profile?v=${Date.now()}`, { cache: 'no-store' });
         if (profRes.ok) {
           const profData = await profRes.json();
+          lastSavedProfileRef.current = JSON.stringify(profData);
           setProfile(profData);
         }
 
@@ -445,6 +449,7 @@ export default function App() {
   // Speaks out the Brazilian Portuguese text cleanly with customized parameters
   const speakText = (text: string) => {
     if (!('speechSynthesis' in window)) return;
+    unlockSpeechSynthesis();
     window.speechSynthesis.resume();
     window.speechSynthesis.cancel();
 
@@ -474,6 +479,9 @@ export default function App() {
       utterance.pitch = profile.preferredVoicePitch || 1.0;
 
       const voices = availableVoices.length > 0 ? availableVoices : window.speechSynthesis.getVoices();
+      if (availableVoices.length === 0 && voices.length > 0) {
+        setAvailableVoices(voices);
+      }
       const ptBRVoices = voices.filter(v => v.lang.toLowerCase() === 'pt-br');
       const portugueseVoices = ptBRVoices.length > 0
         ? ptBRVoices
@@ -508,7 +516,29 @@ export default function App() {
         utterance.voice = matchedVoice;
       }
     }
-    window.speechSynthesis.speak(utterance);
+    const speakNow = () => {
+      window.speechSynthesis.resume();
+      window.speechSynthesis.speak(utterance);
+    };
+
+    speakNow();
+
+    if (speechRetryRef.current) {
+      window.clearTimeout(speechRetryRef.current);
+    }
+
+    speechRetryRef.current = window.setTimeout(() => {
+      if (!window.speechSynthesis.speaking && !window.speechSynthesis.pending) {
+        window.speechSynthesis.cancel();
+        const retryUtterance = new SpeechSynthesisUtterance(textToSpeak);
+        retryUtterance.lang = utterance.lang;
+        retryUtterance.rate = utterance.rate;
+        retryUtterance.pitch = utterance.pitch;
+        retryUtterance.voice = utterance.voice;
+        window.speechSynthesis.resume();
+        window.speechSynthesis.speak(retryUtterance);
+      }
+    }, 180);
   };
 
   const speechWordForButton = (btn: CommunicationButton) => btn.label.trim();
@@ -1118,7 +1148,7 @@ export default function App() {
                 preferredVoiceGender: "female",
                 preferredVoiceSpeechRate: 1.0,
                 preferredVoicePitch: 1.0,
-                gridSizeColumns: 4,
+                gridSizeColumns: 5,
                 gridSizeRows: 3,
                 highContrast: false,
                 notes: "Restaurado com sucesso de backup de simulação em sandbox escolar.",
@@ -1127,7 +1157,7 @@ export default function App() {
               },
               boards: [
                 {
-                  board: { name: "Prancha Escolhida Google", columns: 4, rows: 3 },
+                  board: { name: "Prancha Escolhida Google", columns: 5, rows: 3 },
                   categories: [
                     { id: "cat-cloud-1", name: "Desejos", colorClass: "bg-emerald-100 border-emerald-300 text-emerald-950", icon: "💬" }
                   ],
@@ -1310,6 +1340,7 @@ export default function App() {
       });
       if (res.ok) {
         const updated = await res.json();
+        lastSavedProfileRef.current = JSON.stringify(updated);
         setProfile(updated);
         triggerToastNotification('Configurações de acessibilidade física e voz atualizadas no prontuário.');
       }
@@ -1317,6 +1348,41 @@ export default function App() {
       console.error("Clinical writing failure:", e);
     }
   };
+
+  useEffect(() => {
+    if (!selectedPatientId || !profile || currentView !== 'clinician-panel') return;
+
+    const serializedProfile = JSON.stringify(profile);
+    if (serializedProfile === lastSavedProfileRef.current) return;
+
+    if (profileAutoSaveTimerRef.current) {
+      window.clearTimeout(profileAutoSaveTimerRef.current);
+    }
+
+    profileAutoSaveTimerRef.current = window.setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/patients/${selectedPatientId}/profile`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: serializedProfile
+        });
+
+        if (res.ok) {
+          const updated = await res.json();
+          lastSavedProfileRef.current = JSON.stringify(updated);
+          setProfile((current) => current?.id === updated.id ? updated : current);
+        }
+      } catch (error) {
+        console.warn('Auto-save de configuracoes falhou temporariamente:', error);
+      }
+    }, 900);
+
+    return () => {
+      if (profileAutoSaveTimerRef.current) {
+        window.clearTimeout(profileAutoSaveTimerRef.current);
+      }
+    };
+  }, [profile, selectedPatientId, currentView]);
 
   // Save customized card trigger to backend db
   const handleSaveButtonDetails = async (e: React.FormEvent) => {
@@ -1441,7 +1507,11 @@ export default function App() {
   });
 
   return (
-    <div id="main-view-container" className={`min-h-screen ${highContrastStyle} font-sans flex flex-col transition-colors duration-200 print:bg-white print:text-black`}>
+    <div
+      id="main-view-container"
+      className={`min-h-screen ${highContrastStyle} font-sans flex flex-col transition-colors duration-200 print:bg-white print:text-black`}
+      onPointerDown={handlePatientCanvasPointerDown}
+    >
       
       {/* Toast Alert Success trigger */}
       {successToast && (
@@ -1621,14 +1691,14 @@ export default function App() {
                   </div>
                   <div className="grid grid-cols-2 gap-6">
                     {[
-                      { theme: 'boy' as const, label: 'Menino', src: '/pictograms/boy/quero.png' },
-                      { theme: 'girl' as const, label: 'Menina', src: '/pictograms/girl/quero.png' }
+                      { theme: 'boy' as const, label: 'Menino', src: '/pictograms/boy/avatar.png' },
+                      { theme: 'girl' as const, label: 'Menina', src: '/pictograms/girl/avatar.png' }
                     ].map(option => (
                       <button
                         key={option.theme}
                         type="button"
                         onClick={() => setNewPatientTheme(option.theme)}
-                        className={`relative h-36 rounded-3xl border-4 bg-white overflow-hidden shadow-sm transition-all active:scale-95 ${
+                        className={`relative flex h-40 flex-col items-center justify-end rounded-3xl border-4 bg-white px-3 pb-3 pt-2 overflow-hidden shadow-sm transition-all active:scale-95 ${
                           newPatientTheme === option.theme
                             ? option.theme === 'boy' ? 'border-blue-600 ring-4 ring-blue-100' : 'border-pink-500 ring-4 ring-pink-100'
                             : 'border-slate-200'
@@ -1641,8 +1711,8 @@ export default function App() {
                         }`}>
                           {newPatientTheme === option.theme && <span className={`block w-4 h-4 rounded-full m-1 ${option.theme === 'boy' ? 'bg-blue-600' : 'bg-pink-500'}`}></span>}
                         </span>
-                        <img src={option.src} alt="" className="absolute right-3 bottom-1 h-32 w-32 object-contain" />
-                        <span className={`absolute bottom-3 left-0 right-0 text-2xl font-black ${option.theme === 'boy' ? 'text-blue-700' : 'text-pink-500'}`}>
+                        <img src={option.src} alt="" className="h-24 w-36 object-contain" />
+                        <span className={`text-2xl font-black leading-tight ${option.theme === 'boy' ? 'text-blue-700' : 'text-pink-500'}`}>
                           {option.label}
                         </span>
                       </button>
@@ -1959,6 +2029,9 @@ export default function App() {
                   playTactileFeedback();
                   setActiveSidebarTab('grid');
                   setActiveCategoryId('all');
+                  setSentenceButtons([]);
+                  setCurrentView('login');
+                  setShowInstallBanner(true);
                 }}
                 className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-neutral-800 transition-colors text-white"
                 title="Página Inicial"

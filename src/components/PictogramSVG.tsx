@@ -44,24 +44,31 @@ export const pictogramAssetFor = (label = '', emoji = ''): string | null => {
   const text = normalize(label);
   const em = normalize(emoji);
   const directAssets = new Set([
-    'quero', 'comer', 'beber', 'brincar', 'dormir', 'ajuda', 'maca', 'banana',
-    'biscoito', 'bolacha', 'banheiro', 'dor', 'feliz', 'triste', 'nao', 'sim',
-    'tablet', 'cantar', 'ouvir', 'ver'
+    'agua', 'ajuda', 'almocar', 'banana', 'banheiro', 'beber', 'biscoito',
+    'bolacha', 'bola', 'bravo', 'brincar', 'cantar', 'casa', 'clinica',
+    'comer', 'correr', 'dor', 'dormir', 'escola', 'escovar-dentes',
+    'escrever', 'falar', 'feliz', 'frio', 'leite', 'maca', 'mais', 'medo',
+    'nao', 'ouvir', 'pao', 'parque', 'pintar', 'quente', 'quero', 'sentar',
+    'sim', 'suco', 'tablet', 'triste', 'ursinho', 'ver', 'acabou'
   ]);
 
   if (directAssets.has(em)) return em === 'bolacha' ? 'biscoito' : em;
+  if (directAssets.has(text)) return text === 'bolacha' ? 'biscoito' : text;
 
   if (text.includes('quero') && (text.includes('agua') || text.includes('beber'))) return 'beber';
   if (text.includes('quero') && text.includes('comer')) return 'comer';
   if (text.includes('quero') && text.includes('abraco')) return 'ajuda';
-  if (text.includes('ajuda')) return 'ajuda';
+  if (text.includes('ajuda') || text.includes('socorro')) return 'ajuda';
   if (text.includes('abraco')) return 'ajuda';
   if (text.includes('me da')) return 'quero';
   if (text === 'quero') return 'quero';
+  if (text.includes('mais')) return 'mais';
+  if (text.includes('acabou') || text.includes('terminou') || text.includes('fim')) return 'acabou';
   if (text === 'sim') return 'sim';
   if (text === 'nao' || text.includes('parar') || text.includes('nao estou gostando')) return 'nao';
 
-  if (text.includes('agua') || text.includes('beber') || text.includes('sede')) return text === 'agua' ? 'agua' : 'beber';
+  if (text.includes('agua')) return 'agua';
+  if (text.includes('beber') || text.includes('sede')) return 'beber';
   if (text.includes('suco')) return 'suco';
   if (text.includes('leite')) return 'leite';
   if (text.includes('maca')) return 'maca';
@@ -74,7 +81,7 @@ export const pictogramAssetFor = (label = '', emoji = ''): string | null => {
   if (text.includes('escovar') || text.includes('dente')) return 'escovar-dentes';
   if (text.includes('banho') || text.includes('lavar') || text.includes('sabao')) return 'banheiro';
 
-  if (text.includes('feliz') || text.includes('gostando') || text.includes('brincalhao')) return 'feliz';
+  if (text.includes('feliz') || text.includes('alegre') || text.includes('gostando') || text.includes('brincalhao')) return 'feliz';
   if (text.includes('triste')) return 'triste';
   if (text.includes('bravo') || text.includes('raiva')) return 'bravo';
   if (text.includes('medo') || text.includes('assustado')) return 'medo';
@@ -83,7 +90,7 @@ export const pictogramAssetFor = (label = '', emoji = ''): string | null => {
   if (text.includes('dor') || text.includes('doi') || text.includes('machucado') || text.includes('bandaid')) return 'dor';
   if (text.includes('frio')) return 'frio';
   if (text.includes('calor') || text.includes('quente')) return 'quente';
-  if (text.includes('dormir') || text.includes('soneca') || text.includes('cansado')) return 'dormir';
+  if (text.includes('dormir') || text.includes('sono') || text.includes('soneca') || text.includes('cansado')) return 'dormir';
   if (text.includes('enjoado') || text.includes('enojado')) return 'dor';
   if (text.includes('barulho') || text.includes('silencio')) return 'nao';
 
@@ -100,7 +107,7 @@ export const pictogramAssetFor = (label = '', emoji = ''): string | null => {
   if (text.includes('ouvir')) return 'ouvir';
   if (text.includes('sentar')) return 'sentar';
 
-  if (text.includes('casa') || text.includes('quarto')) return 'casa';
+  if (text.includes('casa') || text.includes('quarto') || text.includes('lar')) return 'casa';
   if (text.includes('escola')) return 'escola';
   if (text.includes('parque') || text.includes('fora')) return 'parque';
   if (text.includes('clinica') || text.includes('terapeuta') || text.includes('sensorial') || text.includes('foco')) return 'clinica';

@@ -57,7 +57,7 @@ async function startServer() {
       preferredVoiceGender: preferredVoiceGender || (profileGenderTheme === "girl" ? "female" : "male"),
       preferredVoiceSpeechRate: 1.0,
       preferredVoicePitch: 1.0,
-      gridSizeColumns: 4,
+      gridSizeColumns: 5,
       gridSizeRows: 3,
       highContrast: false,
       notes: "Paciente recém cadastrado. Prancha padrão gerada automaticamente com categorias PECS essenciais.",
@@ -74,7 +74,7 @@ async function startServer() {
       patientId: patientId,
       name: "Prancha Geral",
       isDefault: true,
-      columns: 4,
+      columns: 5,
       rows: 3,
       createdAt: new Date().toISOString()
     };
@@ -127,7 +127,7 @@ async function startServer() {
           preferredVoiceGender: "male",
           preferredVoiceSpeechRate: 1.0,
           preferredVoicePitch: 1.0,
-          gridSizeColumns: 4,
+          gridSizeColumns: 5,
           gridSizeRows: 3,
           highContrast: false,
           vocabularyFilterEnabled: false,

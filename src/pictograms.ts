@@ -36,7 +36,7 @@ export const pictogramImagesDB: PictogramItem[] = [
     label: 'Quero',
     keywords: ['quero', 'desejar', 'pedir', 'preciso', 'favor', 'ajudar'],
     category: 'actions',
-    speechText: 'Eu quero',
+    speechText: 'Quero',
     pecsDescription: 'Utilizado na Fase I e II do PECS para iniciar pedidos espontâneos de alta motivação.'
   },
   {
@@ -68,7 +68,7 @@ export const pictogramImagesDB: PictogramItem[] = [
     label: 'Me ajuda',
     keywords: ['ajudar', 'socorro', 'apoio', 'auxilio', 'dificuldade', 'ajuda'],
     category: 'actions',
-    speechText: 'Me ajuda, por favor',
+    speechText: 'Ajuda',
     pecsDescription: 'Reduz frustrações e crises de birra ao ensinar o pedido verbal alternativo de cooperação.'
   },
   {
@@ -730,7 +730,7 @@ export const pictogramImagesDB: PictogramItem[] = [
     label: 'Tempo Acabou',
     keywords: ['acabar', 'tempo', 'relogio', 'timer', 'finalizado'],
     category: 'school',
-    speechText: 'O tempo da brincadeira acabou',
+    speechText: 'Acabou',
     pecsDescription: 'Gerencia as transições de tarefas informadas visualmente para reduzir resistência.'
   },
   {

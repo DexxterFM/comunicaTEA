@@ -4,34 +4,107 @@ import { AACDatabase, Patient, CommunicationProfile, Board, BoardCategory, Commu
 
 const DB_FILE = path.join(process.cwd(), 'data', 'db.json');
 
+const CORE_PERSONAL_BUTTONS: { catId: string; label: string; speech: string; image: string; color: string; x: number; y: number }[] = [
+  { catId: "cat-quero", label: "Quero", speech: "Quero", image: "quero", color: "bg-amber-50 text-amber-950 border-amber-200", x: 0, y: 0 },
+  { catId: "cat-quero", label: "Comer", speech: "comer", image: "comer", color: "bg-amber-50 text-amber-950 border-amber-200", x: 1, y: 0 },
+  { catId: "cat-quero", label: "Beber", speech: "beber", image: "beber", color: "bg-amber-50 text-amber-950 border-amber-200", x: 2, y: 0 },
+  { catId: "cat-quero", label: "Mais", speech: "mais", image: "mais", color: "bg-amber-50 text-amber-950 border-amber-200", x: 3, y: 0 },
+  { catId: "cat-quero", label: "Acabou", speech: "acabou", image: "acabou", color: "bg-amber-50 text-amber-950 border-amber-200", x: 4, y: 0 },
+  { catId: "cat-quero", label: "Banheiro", speech: "banheiro", image: "banheiro", color: "bg-amber-50 text-amber-950 border-amber-200", x: 0, y: 1 },
+  { catId: "cat-quero", label: "Dor", speech: "dor", image: "dor", color: "bg-amber-50 text-amber-950 border-amber-200", x: 1, y: 1 },
+  { catId: "cat-quero", label: "Brincar", speech: "brincar", image: "brincar", color: "bg-amber-50 text-amber-950 border-amber-200", x: 2, y: 1 },
+  { catId: "cat-quero", label: "Dormir", speech: "dormir", image: "dormir", color: "bg-amber-50 text-amber-950 border-amber-200", x: 3, y: 1 },
+  { catId: "cat-quero", label: "Ajuda", speech: "ajuda", image: "ajuda", color: "bg-amber-50 text-amber-950 border-amber-200", x: 4, y: 1 },
+  { catId: "cat-quero", label: "Maca", speech: "maca", image: "maca", color: "bg-amber-50 text-amber-950 border-amber-200", x: 0, y: 2 },
+  { catId: "cat-quero", label: "Banana", speech: "banana", image: "banana", color: "bg-amber-50 text-amber-950 border-amber-200", x: 1, y: 2 },
+  { catId: "cat-quero", label: "Biscoito", speech: "biscoito", image: "biscoito", color: "bg-amber-50 text-amber-950 border-amber-200", x: 2, y: 2 },
+  { catId: "cat-quero", label: "Tablet", speech: "tablet", image: "tablet", color: "bg-amber-50 text-amber-950 border-amber-200", x: 3, y: 2 },
+  { catId: "cat-quero", label: "Nao", speech: "nao", image: "nao", color: "bg-amber-50 text-amber-950 border-amber-200", x: 4, y: 2 }
+];
+
 function normalizeCorePhraseButtons(db: AACDatabase): boolean {
   let changed = false;
   const coreLayouts: Record<string, Array<Partial<CommunicationButton> & { id: string }>> = {
-    'board-lucas-1': [
-      { id: 'btn-lucas-0', label: 'Quero', speechText: 'Quero', imageUrl: 'quero', gridX: 0, gridY: 0 },
-      { id: 'btn-lucas-1', label: 'Comer', speechText: 'comer', imageUrl: 'comer', gridX: 1, gridY: 0 },
-      { id: 'btn-lucas-2', label: 'Beber', speechText: 'beber', imageUrl: 'beber', gridX: 2, gridY: 0 },
-      { id: 'btn-lucas-3', label: 'Brincar', speechText: 'brincar', imageUrl: 'brincar', gridX: 3, gridY: 0 },
-      { id: 'btn-lucas-4', label: 'Dormir', speechText: 'dormir', imageUrl: 'dormir', gridX: 0, gridY: 1 },
-      { id: 'btn-lucas-5', label: 'Abraco', speechText: 'abraco', imageUrl: 'abraco', gridX: 1, gridY: 1 },
-      { id: 'btn-lucas-6', label: 'Musica', speechText: 'musica', imageUrl: 'musica', gridX: 2, gridY: 1 },
-      { id: 'btn-lucas-7', label: 'Video', speechText: 'video', imageUrl: 'video', gridX: 3, gridY: 1 },
-    ],
-    'board-ana-1': [
-      { id: 'btn-ana-0', label: 'Quero', speechText: 'Quero', imageUrl: 'quero', gridX: 0, gridY: 0 },
-      { id: 'btn-ana-1', label: 'Comer', speechText: 'comer', imageUrl: 'comer', gridX: 1, gridY: 0 },
-      { id: 'btn-ana-2', label: 'Beber', speechText: 'beber', imageUrl: 'beber', gridX: 2, gridY: 0 },
-    ],
+    'board-lucas-1': CORE_PERSONAL_BUTTONS.map((btn, idx) => ({
+      id: `btn-lucas-${idx}`,
+      label: btn.label,
+      speechText: btn.label,
+      imageUrl: btn.image,
+      gridX: btn.x,
+      gridY: btn.y,
+      categoryId: 'board-lucas-1-cat-quero',
+      colorClass: btn.color
+    })),
+    'board-ana-1': CORE_PERSONAL_BUTTONS.map((btn, idx) => ({
+      id: `btn-ana-${idx}`,
+      label: btn.label,
+      speechText: btn.label,
+      imageUrl: btn.image,
+      gridX: btn.x,
+      gridY: btn.y,
+      categoryId: 'board-ana-1-cat-quero',
+      colorClass: btn.color
+    })),
   };
 
-  Object.values(coreLayouts).flat().forEach((update) => {
-    const button = db.communication_buttons.find((btn) => btn.id === update.id);
-    if (!button) return;
-    Object.entries(update).forEach(([key, value]) => {
-      if ((button as any)[key] !== value) {
-        (button as any)[key] = value;
+  db.communication_profiles.forEach((profile) => {
+    if (profile.gridSizeColumns < 5) {
+      profile.gridSizeColumns = 5;
+      changed = true;
+    }
+    if (profile.gridSizeRows < 3) {
+      profile.gridSizeRows = 3;
+      changed = true;
+    }
+  });
+
+  db.boards.forEach((board) => {
+    if (board.columns < 5) {
+      board.columns = 5;
+      changed = true;
+    }
+    if (board.rows < 3) {
+      board.rows = 3;
+      changed = true;
+    }
+  });
+
+  Object.entries(coreLayouts).forEach(([boardId, buttons]) => {
+    const allowedIds = new Set(buttons.map((button) => button.id));
+    const beforeFilterCount = db.communication_buttons.length;
+    db.communication_buttons = db.communication_buttons.filter((button) => {
+      if (button.boardId !== boardId) return true;
+      return allowedIds.has(button.id);
+    });
+    if (db.communication_buttons.length !== beforeFilterCount) {
+      changed = true;
+    }
+
+    buttons.forEach((update) => {
+      let button = db.communication_buttons.find((btn) => btn.id === update.id);
+      if (!button) {
+        button = {
+          id: update.id,
+          boardId,
+          categoryId: update.categoryId || `${boardId}-cat-quero`,
+          label: update.label || '',
+          speechText: update.speechText || update.label || '',
+          imageUrl: update.imageUrl || '',
+          colorClass: update.colorClass || 'bg-amber-50 text-amber-950 border-amber-200',
+          gridX: update.gridX || 0,
+          gridY: update.gridY || 0,
+          isVisible: true,
+          createdAt: new Date().toISOString()
+        };
+        db.communication_buttons.push(button);
         changed = true;
       }
+      Object.entries(update).forEach(([key, value]) => {
+        if ((button as any)[key] !== value) {
+          (button as any)[key] = value;
+          changed = true;
+        }
+      });
     });
   });
 
@@ -113,7 +186,7 @@ export function initializeDB(): AACDatabase {
     preferredVoiceGender: "neutral",
     preferredVoiceSpeechRate: 0.9,
     preferredVoicePitch: 1.1,
-    gridSizeColumns: 4,
+    gridSizeColumns: 5,
     gridSizeRows: 3,
     highContrast: false,
     notes: "Lucas apresenta boa resposta a estímulos visuais de alto contraste, mas prefere a interface padrão. Responde muito bem a feedbacks de voz sintetizada com entonação amigável.",
@@ -131,7 +204,7 @@ export function initializeDB(): AACDatabase {
     patientId: "pat-lucas",
     name: "Prancha Principal diária Lucas",
     isDefault: true,
-    columns: 4,
+    columns: 5,
     rows: 3,
     createdAt: new Date().toISOString()
   };
@@ -165,72 +238,7 @@ export function initializeDB(): AACDatabase {
   });
 
   // Helper code to inject buttons for Category 1 (Quero)
-  const defaultButtons: { catId: string; label: string; speech: string; image: string; color: string; x: number; y: number }[] = [
-    // QUERO
-    { catId: "cat-quero", label: "Quero", speech: "Quero", image: "quero", color: "bg-amber-50 text-amber-950 border-amber-200", x: 0, y: 0 },
-    { catId: "cat-quero", label: "Comer", speech: "comer", image: "comer", color: "bg-amber-50 text-amber-950 border-amber-200", x: 1, y: 0 },
-    { catId: "cat-quero", label: "Beber", speech: "beber", image: "beber", color: "bg-amber-50 text-amber-950 border-amber-200", x: 2, y: 0 },
-    { catId: "cat-quero", label: "Brincar", speech: "brincar", image: "brincar", color: "bg-amber-50 text-amber-950 border-amber-200", x: 3, y: 0 },
-    { catId: "cat-quero", label: "Dormir", speech: "dormir", image: "dormir", color: "bg-amber-50 text-amber-950 border-amber-200", x: 0, y: 1 },
-    { catId: "cat-quero", label: "Abraco", speech: "abraco", image: "abraco", color: "bg-amber-50 text-amber-950 border-amber-200", x: 1, y: 1 },
-    { catId: "cat-quero", label: "Musica", speech: "musica", image: "musica", color: "bg-amber-50 text-amber-950 border-amber-200", x: 2, y: 1 },
-    { catId: "cat-quero", label: "Video", speech: "video", image: "video", color: "bg-amber-50 text-amber-950 border-amber-200", x: 3, y: 1 },
-
-    // SINTO
-    { catId: "cat-sinto", label: "Estou Feliz", speech: "Eu me sinto muito feliz!", image: "😀", color: "bg-purple-50 text-purple-950 border-purple-200", x: 0, y: 0 },
-    { catId: "cat-sinto", label: "Estou Triste", speech: "Estou me sentindo um pouco triste", image: "😢", color: "bg-purple-50 text-purple-950 border-purple-200", x: 1, y: 0 },
-    { catId: "cat-sinto", label: "Cansado", speech: "Estou cansado e preciso descansar", image: "🥱", color: "bg-purple-50 text-purple-950 border-purple-200", x: 2, y: 0 },
-    { catId: "cat-sinto", label: "Bravo", speech: "Estou com raiva agora", image: "😠", color: "bg-purple-50 text-purple-950 border-purple-200", x: 3, y: 0 },
-    { catId: "cat-sinto", label: "Agitado", speech: "Estou me sentindo muito agitado", image: "🌀", color: "bg-purple-50 text-purple-950 border-purple-200", x: 0, y: 1 },
-    { catId: "cat-sinto", label: "Calmo", speech: "Estou me sentindo calmo e tranquilo", image: "😌", color: "bg-purple-50 text-purple-950 border-purple-200", x: 1, y: 1 },
-
-    // DOR
-    { catId: "cat-dor", label: "Dói de Cabeça", speech: "Estou com dor de cabeça", image: "🤕", color: "bg-red-50 text-red-950 border-red-200", x: 0, y: 0 },
-    { catId: "cat-dor", label: "Dói de Barriga", speech: "Minha barriga está doendo", image: "🤢", color: "bg-red-50 text-red-950 border-red-200", x: 1, y: 0 },
-    { catId: "cat-dor", label: "Dói de Dente", speech: "Meu dente está doendo muito", image: "🦷", color: "bg-red-50 text-red-950 border-red-200", x: 2, y: 0 },
-    { catId: "cat-dor", label: "Machucado", speech: "Eu me machuquei aqui", image: "🩹", color: "bg-red-50 text-red-950 border-red-200", x: 3, y: 0 },
-    { catId: "cat-dor", label: "Dói o Ouvido", speech: "Meu ouvido está doendo", image: "👂", color: "bg-red-50 text-red-950 border-red-200", x: 0, y: 1 },
-
-    // BANHEIRO
-    { catId: "cat-banheiro", label: "Xixi", speech: "Preciso ir ao banheiro fazer xixi", image: "🚽", color: "bg-teal-50 text-teal-950 border-teal-200", x: 0, y: 0 },
-    { catId: "cat-banheiro", label: "Cocô", speech: "Preciso ir ao banheiro fazer cocô", image: "💩", color: "bg-teal-50 text-teal-950 border-teal-200", x: 1, y: 0 },
-    { catId: "cat-banheiro", label: "Tomar Banho", speech: "Quero tomar banho agora", image: "🧼", color: "bg-teal-50 text-teal-950 border-teal-200", x: 2, y: 0 },
-    { catId: "cat-banheiro", label: "Lavar as Mãos", speech: "Quero lavar minhas mãos", image: "🙌", color: "bg-teal-50 text-teal-950 border-teal-200", x: 3, y: 0 },
-    { catId: "cat-banheiro", label: "Escovar Dentes", speech: "Quero escovar meus dentes", image: "🪥", color: "bg-teal-50 text-teal-950 border-teal-200", x: 0, y: 1 },
-
-    // COMIDA
-    { catId: "cat-comida", label: "Água", speech: "Me dá um copo de água, por favor", image: "🥛", color: "bg-emerald-50 text-emerald-950 border-emerald-200", x: 0, y: 0 },
-    { catId: "cat-comida", label: "Suco", speech: "Quero beber um suco", image: "🧃", color: "bg-emerald-50 text-emerald-950 border-emerald-200", x: 1, y: 0 },
-    { catId: "cat-comida", label: "Fruta", speech: "Quero comer uma fruta deliciosa", image: "🍌", color: "bg-emerald-50 text-emerald-950 border-emerald-200", x: 2, y: 0 },
-    { catId: "cat-comida", label: "Biscoito", speech: "Quero comer um biscoito ou bolacha", image: "🍪", color: "bg-emerald-50 text-emerald-950 border-emerald-200", x: 3, y: 0 },
-    { catId: "cat-comida", label: "Leite", speech: "Quero tomar leite morno", image: "🍼", color: "bg-emerald-50 text-emerald-950 border-emerald-200", x: 0, y: 1 },
-    { catId: "cat-comida", label: "Arroz e Feijão", speech: "Quero comer arroz com feijão no prato", image: "🍛", color: "bg-emerald-50 text-emerald-950 border-emerald-200", x: 1, y: 1 },
-
-    // PESSOAS
-    { catId: "cat-pessoas", label: "Mamãe", speech: "Eu quero falar com a mamãe", image: "👩", color: "bg-sky-50 text-sky-950 border-sky-200", x: 0, y: 0 },
-    { catId: "cat-pessoas", label: "Papai", speech: "Eu quero chamar o papai", image: "👨", color: "bg-sky-50 text-sky-950 border-sky-200", x: 1, y: 0 },
-    { catId: "cat-pessoas", label: "Terapeuta", speech: "Cadê minha terapeuta?", image: "👩‍⚕️", color: "bg-sky-50 text-sky-950 border-sky-200", x: 2, y: 0 },
-    { catId: "cat-pessoas", label: "Professora", speech: "Quero chamar a professora", image: "👩‍🏫", color: "bg-sky-50 text-sky-950 border-sky-200", x: 3, y: 0 },
-    { catId: "cat-pessoas", label: "Amigo", speech: "Quero brincar com um amigo", image: "🧒", color: "bg-sky-50 text-sky-950 border-sky-200", x: 0, y: 1 },
-
-    // ESCOLA
-    { catId: "cat-escola", label: "Caderno", speech: "Preciso do meu caderno de atividades", image: "📒", color: "bg-indigo-50 text-indigo-950 border-indigo-200", x: 0, y: 0 },
-    { catId: "cat-escola", label: "Lápis", speech: "Preciso de um lápis de cor para pintar", image: "✏️", color: "bg-indigo-50 text-indigo-950 border-indigo-200", x: 1, y: 0 },
-    { catId: "cat-escola", label: "Livro de Figuras", speech: "Quero olhar o livro de histórias", image: "📚", color: "bg-indigo-50 text-indigo-950 border-indigo-200", x: 2, y: 0 },
-    { catId: "cat-escola", label: "Mochila", speech: "Quero arrumar minha mochila", image: "🎒", color: "bg-indigo-50 text-indigo-950 border-indigo-200", x: 3, y: 0 },
-
-    // TERAPIA
-    { catId: "cat-terapia", label: "Sala de Sensorial", speech: "Quero ir para a sala sensorial relaxar", image: "🧘", color: "bg-pink-50 text-pink-950 border-pink-200", x: 0, y: 0 },
-    { catId: "cat-terapia", label: "Foco", speech: "Preciso do meu brinquedo de foco e estimulação", image: "🌀", color: "bg-pink-50 text-pink-950 border-pink-200", x: 1, y: 0 },
-    { catId: "cat-terapia", label: "Massinha", speech: "Quero brincar com massinha de modelar colorida", image: "🥎", color: "bg-pink-50 text-pink-950 border-pink-200", x: 2, y: 0 },
-    { catId: "cat-terapia", label: "Pula Pula", speech: "Quero pular no pula pula para gastar energia", image: "🤸", color: "bg-pink-50 text-pink-950 border-pink-200", x: 3, y: 0 },
-
-    // EMOCOES
-    { catId: "cat-emocoes", label: "Estou Gostando", speech: "Eu estou gostando muito disso!", image: "💖", color: "bg-violet-50 text-violet-950 border-violet-200", x: 0, y: 0 },
-    { catId: "cat-emocoes", label: "Não Estou Gostando", speech: "Não estou gostando desta atividade, por favor pare", image: "❌", color: "bg-violet-50 text-violet-950 border-violet-200", x: 1, y: 0 },
-    { catId: "cat-emocoes", label: "Muito Barulho", speech: "Tem muito barulho aqui, está me sufocando", image: "🙉", color: "bg-violet-50 text-violet-950 border-violet-200", x: 2, y: 0 },
-    { catId: "cat-emocoes", label: "Assustado", speech: "Estou com medo ou assustado com algo", image: "😨", color: "bg-violet-50 text-violet-950 border-violet-200", x: 3, y: 0 }
-  ];
+  const defaultButtons = CORE_PERSONAL_BUTTONS;
 
   defaultButtons.forEach((btn, idx) => {
     db.communication_buttons.push({
@@ -258,17 +266,14 @@ export function initializeDB(): AACDatabase {
   const logs: ButtonUsageLog[] = [
     { id: "log-1", patientId: "pat-lucas", boardId: "board-lucas-1", buttonId: "btn-lucas-0", buttonLabel: "Quero", categoryName: "Quero", timestamp: generatePastDate(48), phraseContext: "Quero + Beber" },
     { id: "log-2", patientId: "pat-lucas", boardId: "board-lucas-1", buttonId: "btn-lucas-1", buttonLabel: "Comer", categoryName: "Quero", timestamp: generatePastDate(47), phraseContext: "Quero + Comer" },
-    { id: "log-3", patientId: "pat-lucas", boardId: "board-lucas-1", buttonId: "btn-lucas-18", buttonLabel: "Xixi", categoryName: "Banheiro", timestamp: generatePastDate(45), phraseContext: "Fazer Xixi" },
-    { id: "log-4", patientId: "pat-lucas", boardId: "board-lucas-1", buttonId: "btn-lucas-8", buttonLabel: "Estou Feliz", categoryName: "Sinto", timestamp: generatePastDate(44), phraseContext: "Estou Feliz + Quero Abraço" },
-    { id: "log-5", patientId: "pat-lucas", boardId: "board-lucas-1", buttonId: "btn-lucas-5", buttonLabel: "Quero Abraço", categoryName: "Quero", timestamp: generatePastDate(44), phraseContext: "Estou Feliz + Quero Abraço" },
-    { id: "log-6", patientId: "pat-lucas", boardId: "board-lucas-1", buttonId: "btn-lucas-14", buttonLabel: "Dói de Barriga", categoryName: "Dor", timestamp: generatePastDate(30), phraseContext: "Dói de Barriga" },
-    { id: "log-7", patientId: "pat-lucas", boardId: "board-lucas-1", buttonId: "btn-lucas-2", buttonLabel: "Brincar", categoryName: "Quero", timestamp: generatePastDate(24), phraseContext: "Brincar + Mamãe" },
-    { id: "log-8", patientId: "pat-lucas", boardId: "board-lucas-1", buttonId: "btn-lucas-29", buttonLabel: "Mamãe", categoryName: "Pessoas", timestamp: generatePastDate(24), phraseContext: "Brincar + Mamãe" },
-    { id: "log-9", patientId: "pat-lucas", boardId: "board-lucas-1", buttonId: "btn-lucas-23", buttonLabel: "Biscoito", categoryName: "Comida", timestamp: generatePastDate(20), phraseContext: "Quero Comer + Biscoito" },
-    { id: "log-10", patientId: "pat-lucas", boardId: "board-lucas-1", buttonId: "btn-lucas-36", buttonLabel: "Massinha", categoryName: "Terapia", timestamp: generatePastDate(12), phraseContext: "Massinha + Terapeuta" },
-    { id: "log-11", patientId: "pat-lucas", boardId: "board-lucas-1", buttonId: "btn-lucas-31", buttonLabel: "Terapeuta", categoryName: "Pessoas", timestamp: generatePastDate(12), phraseContext: "Massinha + Terapeuta" },
-    { id: "log-12", patientId: "pat-lucas", boardId: "board-lucas-1", buttonId: "btn-lucas-0", buttonLabel: "Quero Água", categoryName: "Quero", timestamp: generatePastDate(4), phraseContext: "Quero Água" },
-    { id: "log-13", patientId: "pat-lucas", boardId: "board-lucas-1", buttonId: "btn-lucas-10", buttonLabel: "Cansado", categoryName: "Sinto", timestamp: generatePastDate(2), phraseContext: "Cansado" }
+    { id: "log-3", patientId: "pat-lucas", boardId: "board-lucas-1", buttonId: "btn-lucas-2", buttonLabel: "Beber", categoryName: "Quero", timestamp: generatePastDate(45), phraseContext: "Quero + Beber" },
+    { id: "log-4", patientId: "pat-lucas", boardId: "board-lucas-1", buttonId: "btn-lucas-5", buttonLabel: "Banheiro", categoryName: "Quero", timestamp: generatePastDate(44), phraseContext: "Banheiro" },
+    { id: "log-5", patientId: "pat-lucas", boardId: "board-lucas-1", buttonId: "btn-lucas-6", buttonLabel: "Dor", categoryName: "Quero", timestamp: generatePastDate(30), phraseContext: "Dor" },
+    { id: "log-6", patientId: "pat-lucas", boardId: "board-lucas-1", buttonId: "btn-lucas-7", buttonLabel: "Brincar", categoryName: "Quero", timestamp: generatePastDate(24), phraseContext: "Quero + Brincar" },
+    { id: "log-7", patientId: "pat-lucas", boardId: "board-lucas-1", buttonId: "btn-lucas-11", buttonLabel: "Banana", categoryName: "Quero", timestamp: generatePastDate(20), phraseContext: "Quero + Comer + Banana" },
+    { id: "log-8", patientId: "pat-lucas", boardId: "board-lucas-1", buttonId: "btn-lucas-9", buttonLabel: "Ajuda", categoryName: "Quero", timestamp: generatePastDate(12), phraseContext: "Ajuda" },
+    { id: "log-9", patientId: "pat-lucas", boardId: "board-lucas-1", buttonId: "btn-lucas-4", buttonLabel: "Acabou", categoryName: "Quero", timestamp: generatePastDate(4), phraseContext: "Acabou" },
+    { id: "log-10", patientId: "pat-lucas", boardId: "board-lucas-1", buttonId: "btn-lucas-14", buttonLabel: "Nao", categoryName: "Quero", timestamp: generatePastDate(2), phraseContext: "Nao" }
   ];
 
   db.button_usage_logs = logs;
@@ -293,7 +298,7 @@ export function initializeDB(): AACDatabase {
     preferredVoiceGender: "female",
     preferredVoiceSpeechRate: 1.0,
     preferredVoicePitch: 1.2,
-    gridSizeColumns: 3,
+    gridSizeColumns: 5,
     gridSizeRows: 3,
     highContrast: true, // Showcases high contrast layout!
     notes: "Ana possui diagnóstico associado de Apraxia da Fala Infantil. É altamente independente no uso da prancha visual. Utiliza muito as categorias Comida e Emoções de forma autônoma.",
@@ -308,7 +313,7 @@ export function initializeDB(): AACDatabase {
     patientId: "pat-ana",
     name: "Prancha Geral Aninha",
     isDefault: true,
-    columns: 3,
+    columns: 5,
     rows: 3,
     createdAt: new Date().toISOString()
   };
@@ -329,15 +334,7 @@ export function initializeDB(): AACDatabase {
     });
   });
 
-  const defaultButtonsAna = [
-    { catId: "cat-quero", label: "Água", speech: "Estou com sede, quero beber água", image: "💧", color: "bg-amber-50 text-amber-950 border-amber-200", x: 0, y: 0 },
-    { catId: "cat-quero", label: "Comer", speech: "Quero comer algo gostoso", image: "🍏", color: "bg-amber-50 text-amber-950 border-amber-200", x: 1, y: 0 },
-    { catId: "cat-quero", label: "Parque", speech: "Quero ir brincar no parquinho", image: "🛝", color: "bg-amber-50 text-amber-950 border-amber-200", x: 2, y: 0 },
-    { catId: "cat-sinto", label: "Feliz", speech: "Estou me sentindo muito feliz!", image: "😊", color: "bg-purple-50 text-purple-950 border-purple-200", x: 0, y: 0 },
-    { catId: "cat-comida", label: "Fruta", speech: "Quero comer uma fruta fresquinha", image: "🍓", color: "bg-emerald-50 text-emerald-950 border-emerald-200", x: 0, y: 0 },
-    { catId: "cat-comida", label: "Suco", speech: "Pode me dar um suco?", image: "🧃", color: "bg-emerald-50 text-emerald-950 border-emerald-200", x: 1, y: 0 },
-    { catId: "cat-banheiro", label: "Banheiro", speech: "Preciso ir ao banheiro agora", image: "🚽", color: "bg-teal-50 text-teal-950 border-teal-200", x: 0, y: 0 }
-  ];
+  const defaultButtonsAna = CORE_PERSONAL_BUTTONS;
 
   defaultButtonsAna.forEach((btn, idx) => {
     db.communication_buttons.push({
@@ -401,16 +398,7 @@ export function addPatient(patient: Patient, profile: CommunicationProfile, boar
   });
 
   // Insert standard helpful simple starter buttons
-  const initialButtons = [
-    { catId: "cat-quero", label: "Quero", speech: "Quero", image: "quero", color: "bg-amber-50 text-amber-950 border-amber-200", x: 0, y: 0 },
-    { catId: "cat-quero", label: "Comer", speech: "comer", image: "comer", color: "bg-amber-50 text-amber-950 border-amber-200", x: 1, y: 0 },
-    { catId: "cat-quero", label: "Beber", speech: "beber", image: "beber", color: "bg-amber-50 text-amber-950 border-amber-200", x: 2, y: 0 },
-    { catId: "cat-sinto", label: "Estou Feliz", speech: "Estou me sentindo muito feliz!", image: "😀", color: "bg-purple-50 text-purple-950 border-purple-200", x: 0, y: 0 },
-    { catId: "cat-dor", label: "Machucado", speech: "Eu me machuquei, está doendo", image: "🩹", color: "bg-red-50 text-red-950 border-red-200", x: 0, y: 0 },
-    { catId: "cat-banheiro", label: "Xixi", speech: "Preciso ir ao banheiro fazer xixi", image: "🚽", color: "bg-teal-50 text-teal-950 border-teal-200", x: 0, y: 0 },
-    { catId: "cat-comida", label: "Fruta", speech: "Quero comer uma fruta", image: "🍌", color: "bg-emerald-50 text-emerald-950 border-emerald-200", x: 0, y: 0 },
-    { catId: "cat-pessoas", label: "Mamãe", speech: "Quero falar com a mamãe", image: "👩", color: "bg-sky-50 text-sky-950 border-sky-200", x: 0, y: 0 }
-  ];
+  const initialButtons = CORE_PERSONAL_BUTTONS;
 
   initialButtons.forEach((btn, idx) => {
     currentDB.communication_buttons.push({

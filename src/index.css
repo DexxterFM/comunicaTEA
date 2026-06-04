@@ -8,7 +8,7 @@
 }
 
 @media (orientation: portrait) and (max-width: 1024px) and (pointer: coarse) {
-  #patient-only-canvas::after {
+  #root::before {
     content: "Gire o celular ou tablet para usar o TEAjudando na horizontal.";
     position: fixed;
     inset: 0;
@@ -24,5 +24,13 @@
     font-size: 24px;
     font-weight: 900;
     line-height: 1.15;
+  }
+
+  #root::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    background: #cbd2db;
   }
 }
