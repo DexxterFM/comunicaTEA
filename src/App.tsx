@@ -486,6 +486,8 @@ export default function App() {
     window.speechSynthesis.speak(utterance);
   };
 
+  const speechWordForButton = (btn: CommunicationButton) => btn.label.trim();
+
   // Helper check for TD Snap Vocabulary Filter (Chapter 8)
   const isButtonFilteredOut = (btn: CommunicationButton) => {
     if (!vocabFilterEnabled || !vocabFilterList.trim()) return false;
@@ -529,7 +531,7 @@ export default function App() {
 
     setLastTapTimestamp(Date.now());
     playTactileFeedback();
-    speakText(btn.speechText);
+    speakText(speechWordForButton(btn));
 
     // Append to phrase builder list (up to 8 visual cards max)
     setSentenceButtons(prev => {
@@ -561,7 +563,7 @@ export default function App() {
   // Composite Sentence Speech synthesis
   const speakAssembledSentence = async () => {
     if (sentenceButtons.length === 0) return;
-    const texts = sentenceButtons.map(b => b.speechText || b.label);
+    const texts = sentenceButtons.map(speechWordForButton);
     const jointPhrase = texts.join(' ');
     
     playTactileFeedback();
@@ -2034,13 +2036,13 @@ export default function App() {
                           key={`quick-${idx}`}
                           onClick={() => {
                             playTactileFeedback();
-                            speakText(item.text);
+                            speakText(item.label);
                           }}
                           className="flex items-center justify-center p-2 rounded-xl border-2 border-neutral-950 bg-white shadow-sm transition-all transform hover:scale-102 active:scale-95 text-center min-h-[112px] cursor-pointer"
                           title={item.label}
                           aria-label={item.label}
                         >
-                          <PictogramSVG label={item.text} emoji={item.icon} className="w-full h-full" />
+                          <PictogramSVG label={item.label} emoji={item.icon} className="w-full h-full" />
                         </button>
                       ))}
                     </div>
