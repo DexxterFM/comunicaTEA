@@ -467,18 +467,36 @@ export default function App() {
       utterance.pitch = profile.preferredVoicePitch || 1.0;
 
       const voices = availableVoices.length > 0 ? availableVoices : window.speechSynthesis.getVoices();
-      const ptBRVoices = voices.filter(v => v.lang.includes('pt-BR') || v.lang.includes('pt'));
-      
-      let matchedVoice: SpeechSynthesisVoice | undefined;
-      if (profile.preferredVoiceGender === 'male') {
-        matchedVoice = ptBRVoices.find(v => v.name.toLowerCase().includes('masculino') || v.name.toLowerCase().includes('daniel') || !v.name.toLowerCase().includes('helena'));
-      } else if (profile.preferredVoiceGender === 'female') {
-        matchedVoice = ptBRVoices.find(v => v.name.toLowerCase().includes('feminino') || v.name.toLowerCase().includes('helena') || v.name.toLowerCase().includes('maria'));
-      }
-      
-      if (!matchedVoice && ptBRVoices.length > 0) {
-        matchedVoice = ptBRVoices[0];
-      }
+      const ptBRVoices = voices.filter(v => v.lang.toLowerCase() === 'pt-br');
+      const portugueseVoices = ptBRVoices.length > 0
+        ? ptBRVoices
+        : voices.filter(v => v.lang.toLowerCase().startsWith('pt'));
+
+      const preferredNames = profile.preferredVoiceGender === 'male'
+        ? ['antonio', 'daniel', 'felipe']
+        : profile.preferredVoiceGender === 'female'
+          ? ['francisca', 'maria', 'luciana']
+          : ['francisca', 'antonio', 'google', 'maria', 'daniel'];
+
+      const scoreVoice = (voice: SpeechSynthesisVoice) => {
+        const name = voice.name.toLowerCase();
+        let score = 0;
+        if (voice.lang.toLowerCase() === 'pt-br') score += 100;
+        if (name.includes('natural') || name.includes('neural')) score += 30;
+        if (name.includes('microsoft')) score += 20;
+        if (name.includes('google')) score += 15;
+        preferredNames.forEach((needle, idx) => {
+          if (name.includes(needle)) score += 80 - idx * 10;
+        });
+        if (profile.preferredVoiceGender === 'male' && ['francisca', 'maria', 'luciana', 'helena'].some(n => name.includes(n))) score -= 70;
+        if (profile.preferredVoiceGender === 'female' && ['antonio', 'daniel', 'felipe'].some(n => name.includes(n))) score -= 70;
+        return score;
+      };
+
+      const matchedVoice = portugueseVoices
+        .slice()
+        .sort((a, b) => scoreVoice(b) - scoreVoice(a))[0];
+
       if (matchedVoice) {
         utterance.voice = matchedVoice;
       }

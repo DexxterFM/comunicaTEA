@@ -8,7 +8,7 @@ function normalizeCorePhraseButtons(db: AACDatabase): boolean {
   let changed = false;
   const coreLayouts: Record<string, Array<Partial<CommunicationButton> & { id: string }>> = {
     'board-lucas-1': [
-      { id: 'btn-lucas-0', label: 'Quero', speechText: 'Eu quero', imageUrl: 'quero', gridX: 0, gridY: 0 },
+      { id: 'btn-lucas-0', label: 'Quero', speechText: 'Quero', imageUrl: 'quero', gridX: 0, gridY: 0 },
       { id: 'btn-lucas-1', label: 'Comer', speechText: 'comer', imageUrl: 'comer', gridX: 1, gridY: 0 },
       { id: 'btn-lucas-2', label: 'Beber', speechText: 'beber', imageUrl: 'beber', gridX: 2, gridY: 0 },
       { id: 'btn-lucas-3', label: 'Brincar', speechText: 'brincar', imageUrl: 'brincar', gridX: 3, gridY: 0 },
@@ -18,7 +18,7 @@ function normalizeCorePhraseButtons(db: AACDatabase): boolean {
       { id: 'btn-lucas-7', label: 'Video', speechText: 'video', imageUrl: 'video', gridX: 3, gridY: 1 },
     ],
     'board-ana-1': [
-      { id: 'btn-ana-0', label: 'Quero', speechText: 'Eu quero', imageUrl: 'quero', gridX: 0, gridY: 0 },
+      { id: 'btn-ana-0', label: 'Quero', speechText: 'Quero', imageUrl: 'quero', gridX: 0, gridY: 0 },
       { id: 'btn-ana-1', label: 'Comer', speechText: 'comer', imageUrl: 'comer', gridX: 1, gridY: 0 },
       { id: 'btn-ana-2', label: 'Beber', speechText: 'beber', imageUrl: 'beber', gridX: 2, gridY: 0 },
     ],
@@ -160,7 +160,7 @@ export function initializeDB(): AACDatabase {
   // Helper code to inject buttons for Category 1 (Quero)
   const defaultButtons: { catId: string; label: string; speech: string; image: string; color: string; x: number; y: number }[] = [
     // QUERO
-    { catId: "cat-quero", label: "Quero", speech: "Eu quero", image: "quero", color: "bg-amber-50 text-amber-950 border-amber-200", x: 0, y: 0 },
+    { catId: "cat-quero", label: "Quero", speech: "Quero", image: "quero", color: "bg-amber-50 text-amber-950 border-amber-200", x: 0, y: 0 },
     { catId: "cat-quero", label: "Comer", speech: "comer", image: "comer", color: "bg-amber-50 text-amber-950 border-amber-200", x: 1, y: 0 },
     { catId: "cat-quero", label: "Beber", speech: "beber", image: "beber", color: "bg-amber-50 text-amber-950 border-amber-200", x: 2, y: 0 },
     { catId: "cat-quero", label: "Brincar", speech: "brincar", image: "brincar", color: "bg-amber-50 text-amber-950 border-amber-200", x: 3, y: 0 },
@@ -395,7 +395,7 @@ export function addPatient(patient: Patient, profile: CommunicationProfile, boar
 
   // Insert standard helpful simple starter buttons
   const initialButtons = [
-    { catId: "cat-quero", label: "Quero", speech: "Eu quero", image: "quero", color: "bg-amber-50 text-amber-950 border-amber-200", x: 0, y: 0 },
+    { catId: "cat-quero", label: "Quero", speech: "Quero", image: "quero", color: "bg-amber-50 text-amber-950 border-amber-200", x: 0, y: 0 },
     { catId: "cat-quero", label: "Comer", speech: "comer", image: "comer", color: "bg-amber-50 text-amber-950 border-amber-200", x: 1, y: 0 },
     { catId: "cat-quero", label: "Beber", speech: "beber", image: "beber", color: "bg-amber-50 text-amber-950 border-amber-200", x: 2, y: 0 },
     { catId: "cat-sinto", label: "Estou Feliz", speech: "Estou me sentindo muito feliz!", image: "😀", color: "bg-purple-50 text-purple-950 border-purple-200", x: 0, y: 0 },
