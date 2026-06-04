@@ -80,7 +80,7 @@ export const pictogramAssetFor = (label = '', emoji = ''): string | null => {
   if (text.includes('medo') || text.includes('assustado')) return 'medo';
   if (text.includes('ansioso') || text.includes('agitado')) return 'medo';
   if (text.includes('calmo')) return 'feliz';
-  if (text.includes('dor') || text.includes('machucado') || text.includes('bandaid')) return 'dor';
+  if (text.includes('dor') || text.includes('doi') || text.includes('machucado') || text.includes('bandaid')) return 'dor';
   if (text.includes('frio')) return 'frio';
   if (text.includes('calor') || text.includes('quente')) return 'quente';
   if (text.includes('dormir') || text.includes('soneca') || text.includes('cansado')) return 'dormir';

@@ -1,6 +1,7 @@
 node_modules/
 extracted/
 data/
+backups/
 build/
 dist/
 coverage/

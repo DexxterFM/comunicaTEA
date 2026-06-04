@@ -35,6 +35,13 @@ function normalizeCorePhraseButtons(db: AACDatabase): boolean {
     });
   });
 
+  db.communication_buttons.forEach((button) => {
+    if (button.speechText !== button.label) {
+      button.speechText = button.label;
+      changed = true;
+    }
+  });
+
   db.button_usage_logs.forEach((log) => {
     if (log.phraseContext === 'Quero Comer + Biscoito') {
       log.phraseContext = 'Quero + Comer + Biscoito';
@@ -231,7 +238,7 @@ export function initializeDB(): AACDatabase {
       boardId: b1.id,
       categoryId: `${b1.id}-${btn.catId}`,
       label: btn.label,
-      speechText: btn.speech,
+      speechText: btn.label,
       imageUrl: btn.image,
       colorClass: btn.color,
       gridX: btn.x,
@@ -338,7 +345,7 @@ export function initializeDB(): AACDatabase {
       boardId: b2.id,
       categoryId: `${b2.id}-${btn.catId}`,
       label: btn.label,
-      speechText: btn.speech,
+      speechText: btn.label,
       imageUrl: btn.image,
       colorClass: btn.color,
       gridX: btn.x,
@@ -411,7 +418,7 @@ export function addPatient(patient: Patient, profile: CommunicationProfile, boar
       boardId: board.id,
       categoryId: `${board.id}-${btn.catId}`,
       label: btn.label,
-      speechText: btn.speech,
+      speechText: btn.label,
       imageUrl: btn.image,
       colorClass: btn.color,
       gridX: btn.x,

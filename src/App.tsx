@@ -38,7 +38,9 @@ import {
   Clock,
   LockKeyhole,
   Cloud,
-  Palette
+  Palette,
+  Download,
+  Smartphone
 } from 'lucide-react';
 
 import { 
@@ -524,7 +526,12 @@ export default function App() {
   // Helper action to invoke standard browser PWA install prompt
   const handlePWAInstallClick = async () => {
     playTactileFeedback();
-    if (!deferredPrompt) return;
+    if (!deferredPrompt) {
+      setSuccessToast('Para baixar: no Android/Chrome use o menu do navegador e toque em "Instalar app". No iPhone/iPad use Compartilhar e "Adicionar à Tela de Início".');
+      setTimeout(() => setSuccessToast(null), 5200);
+      setShowInstallBanner(true);
+      return;
+    }
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     console.log(`PWA install choice accepted status: ${outcome}`);
@@ -1410,6 +1417,26 @@ export default function App() {
 
             {/* Direito: Os dois canais de login isolados */}
             <div className="md:col-span-8 p-8 flex flex-col justify-center gap-8 bg-white">
+              <div className="rounded-[24px] border border-blue-150 bg-gradient-to-r from-blue-50 via-white to-emerald-50 p-4 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+                    <Smartphone className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-black text-slate-950 leading-tight">Baixar ComunicaTEA</h2>
+                    <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                      Instale no celular ou tablet e use em tela cheia, com acesso rápido pela tela inicial.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handlePWAInstallClick}
+                  className="bg-blue-700 hover:bg-blue-800 text-white font-black text-sm px-5 py-3 rounded-2xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 shrink-0"
+                >
+                  <Download className="w-5 h-5" />
+                  Baixar app
+                </button>
+              </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-stretch">
                 
