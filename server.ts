@@ -30,7 +30,7 @@ async function startServer() {
 
   // 2. create a patient (creates patient + auto default profile + auto board with categories/buttons)
   app.post('/api/patients', (req, res) => {
-    const { name, birthDate, recordNumber, diagnosis, responsibleName, responsiblePhone, genderTheme } = req.body;
+    const { name, birthDate, recordNumber, diagnosis, responsibleName, responsiblePhone, genderTheme, preferredVoiceGender } = req.body;
     if (!name) {
       return res.status(400).json({ error: "Nome do paciente é obrigatório" });
     }
@@ -48,12 +48,13 @@ async function startServer() {
       createdAt: new Date().toISOString()
     };
 
+    const profileGenderTheme = genderTheme || "neutral";
     const newProfile: CommunicationProfile = {
       id: `prof-${Date.now()}`,
       patientId: patientId,
       motorLevel: "independent",
       cognitiveLevel: "symbolic",
-      preferredVoiceGender: "male",
+      preferredVoiceGender: preferredVoiceGender || (profileGenderTheme === "girl" ? "female" : "male"),
       preferredVoiceSpeechRate: 1.0,
       preferredVoicePitch: 1.0,
       gridSizeColumns: 4,
@@ -62,7 +63,7 @@ async function startServer() {
       notes: "Paciente recém cadastrado. Prancha padrão gerada automaticamente com categorias PECS essenciais.",
       acceptanceDelay: 0,
       preventDoubleTapsDelay: 0,
-      genderTheme: genderTheme || "neutral",
+      genderTheme: profileGenderTheme,
       aiCredits: 200,
       updatedAt: new Date().toISOString()
     };

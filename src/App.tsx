@@ -40,7 +40,9 @@ import {
   Cloud,
   Palette,
   Download,
-  Smartphone
+  Smartphone,
+  Minus,
+  ArrowRight
 } from 'lucide-react';
 
 import { 
@@ -188,7 +190,9 @@ export default function App() {
   const [newPatientDiagnosis, setNewPatientDiagnosis] = useState<string>('');
   const [newPatientResp, setNewPatientResp] = useState<string>('');
   const [newPatientPhone, setNewPatientPhone] = useState<string>('');
-  const [newPatientTheme, setNewPatientTheme] = useState<'boy' | 'girl' | 'neutral'>('neutral');
+  const [newPatientTheme, setNewPatientTheme] = useState<'boy' | 'girl' | 'neutral'>('boy');
+  const [welcomeAge, setWelcomeAge] = useState<number>(5);
+  const [welcomeVoiceGender, setWelcomeVoiceGender] = useState<'male' | 'female'>('female');
 
   // TD Snap custom states
   const [showBehavioralSupports, setShowBehavioralSupports] = useState<boolean>(false);
@@ -732,6 +736,59 @@ export default function App() {
       }
     } catch (err) {
       console.error("Clinical management directory failure:", err);
+    }
+  };
+
+  const birthDateFromAge = (age: number) => {
+    const date = new Date();
+    date.setFullYear(date.getFullYear() - age);
+    return date.toISOString().slice(0, 10);
+  };
+
+  const handleWelcomeStart = async () => {
+    playTactileFeedback();
+    const name = newPatientName.trim();
+
+    if (!name) {
+      setSuccessToast('Digite o nome para configurar o ComunicaTEA.');
+      setTimeout(() => setSuccessToast(null), 3600);
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/patients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          birthDate: birthDateFromAge(welcomeAge),
+          recordNumber: `CTEA-${Date.now().toString().slice(-6)}`,
+          diagnosis: 'Transtorno do Espectro Autista (TEA)',
+          responsibleName: '',
+          responsiblePhone: '',
+          genderTheme: newPatientTheme === 'neutral' ? 'boy' : newPatientTheme,
+          preferredVoiceGender: welcomeVoiceGender
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error('Nao foi possivel criar o perfil inicial.');
+      }
+
+      const result = await res.json();
+      setSelectedPatientId(result.patient.id);
+      setNewPatientName('');
+      setNewPatientBirth('');
+      setNewPatientNumber('');
+      setNewPatientDiagnosis('');
+      setNewPatientResp('');
+      setNewPatientPhone('');
+      await fetchPatients(result.patient.id);
+      setCurrentView('patient-grid');
+    } catch (err) {
+      console.error('Welcome setup failure:', err);
+      setSuccessToast('Nao foi possivel iniciar agora. Tente novamente.');
+      setTimeout(() => setSuccessToast(null), 3600);
     }
   };
 
@@ -1385,6 +1442,232 @@ export default function App() {
 
       {/* ------------------------------- SCREEN 1: LOGIN PORTAL ------------------------------- */}
       {currentView === 'login' && (
+        <div className="relative flex-1 overflow-hidden bg-[#d9f2ff]">
+          <div className="absolute inset-y-0 left-0 w-full md:w-1/2 bg-white"></div>
+          <div className="absolute -bottom-10 -left-8 w-36 h-36 rounded-full bg-sky-200"></div>
+          <div className="absolute bottom-0 left-20 w-24 h-16 rounded-t-full bg-sky-300"></div>
+          <div className="absolute bottom-6 left-[22%] text-pink-400"><Heart className="w-12 h-12 fill-current" /></div>
+          <div className="absolute bottom-7 left-[34%] text-yellow-400"><Sparkles className="w-14 h-14 fill-current" /></div>
+          <div className="absolute -bottom-8 right-0 w-40 h-24 rounded-t-full bg-green-400"></div>
+          <div className="absolute right-0 top-[23%] h-36 w-20 rounded-l-full bg-gradient-to-b from-pink-400 via-yellow-300 to-sky-400 opacity-80"></div>
+
+          <div className="relative z-10 min-h-screen grid grid-cols-1 md:grid-cols-2">
+            <section className="flex flex-col items-center justify-center px-6 lg:px-8 py-8 lg:py-10 text-center">
+              <div className="relative w-56 h-48 lg:w-72 lg:h-64 mb-5 lg:mb-8">
+                <div className="absolute left-4 top-6 lg:top-8 w-24 h-24 lg:w-32 lg:h-32 rounded-tl-[52px] lg:rounded-tl-[64px] rounded-br-[8px] bg-gradient-to-br from-sky-500 to-blue-700 shadow-lg"></div>
+                <div className="absolute right-4 top-6 lg:top-8 w-24 h-24 lg:w-32 lg:h-32 rounded-tr-[52px] lg:rounded-tr-[64px] rounded-bl-[8px] bg-gradient-to-br from-yellow-300 to-amber-500 shadow-lg"></div>
+                <div className="absolute left-4 bottom-6 lg:bottom-8 w-24 h-24 lg:w-32 lg:h-32 rounded-bl-[52px] lg:rounded-bl-[64px] rounded-tr-[8px] bg-gradient-to-br from-lime-400 to-green-500 shadow-lg"></div>
+                <div className="absolute right-4 bottom-6 lg:bottom-8 w-24 h-24 lg:w-32 lg:h-32 rounded-br-[52px] lg:rounded-br-[64px] rounded-tl-[8px] bg-gradient-to-br from-pink-400 to-rose-500 shadow-lg"></div>
+                <div className="absolute inset-x-10 lg:inset-x-12 top-[76px] lg:top-24 h-20 lg:h-24 bg-white rounded-[38px] lg:rounded-[44px] shadow-lg flex items-center justify-center gap-3 lg:gap-4">
+                  <span className="w-4 h-4 lg:w-5 lg:h-5 rounded-full bg-blue-950"></span>
+                  <span className="w-4 h-4 lg:w-5 lg:h-5 rounded-full bg-blue-950"></span>
+                  <span className="w-4 h-4 lg:w-5 lg:h-5 rounded-full bg-blue-950"></span>
+                </div>
+                <div className="absolute left-[94px] lg:left-[118px] top-[140px] lg:top-[178px] w-8 h-8 lg:w-10 lg:h-10 bg-white rounded-bl-[32px] rotate-12"></div>
+              </div>
+
+              <h1 className="text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-none">
+                <span className="text-blue-950">Comunica</span><span className="text-rose-500">T</span><span className="text-lime-500">E</span><span className="text-sky-500">A</span>
+              </h1>
+              <p className="mt-5 lg:mt-7 text-xl lg:text-2xl font-black text-blue-950 leading-snug max-w-xl">
+                Comunicação que conecta,<br />aprendizado que transforma.
+              </p>
+            </section>
+
+            <section className="relative flex flex-col items-center justify-center px-4 lg:px-6 py-5 lg:py-8">
+              <div className="absolute left-8 top-10 w-24 h-12 rounded-t-full bg-white/75"></div>
+              <div className="absolute right-8 top-10 w-24 h-12 rounded-t-full bg-white/75"></div>
+
+              <div className="w-full max-w-[720px] text-center mb-4 lg:mb-5">
+                <h2 className="text-4xl lg:text-5xl xl:text-6xl font-black text-blue-950 drop-shadow-sm">Bem-vindo!</h2>
+                <p className="mt-2 lg:mt-3 text-xl lg:text-2xl font-black text-blue-900">Vamos configurar o app para você.</p>
+              </div>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleWelcomeStart();
+                }}
+                className="w-full max-w-[680px] rounded-[34px] bg-white/95 shadow-2xl border border-white p-5 lg:p-7 xl:p-9 space-y-4 lg:space-y-6"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={handlePWAInstallClick}
+                    className="bg-blue-700 hover:bg-blue-800 text-white font-black text-sm px-5 py-3 rounded-2xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    <Download className="w-5 h-5" />
+                    Baixar app
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playTactileFeedback();
+                      setShowPinDialog(!showPinDialog);
+                    }}
+                    className="text-xs font-black text-blue-800 hover:text-blue-950 flex items-center gap-2"
+                  >
+                    <LockKeyhole className="w-4 h-4" />
+                    Terapeuta
+                  </button>
+                </div>
+
+                {showPinDialog && (
+                  <div className="rounded-2xl bg-blue-50 border border-blue-100 p-3 flex gap-2">
+                    <input
+                      type="password"
+                      placeholder="PIN"
+                      maxLength={4}
+                      value={pinInput}
+                      onChange={(e) => {
+                        setPinInput(e.target.value.replace(/\D/g, ''));
+                        setPinError('');
+                      }}
+                      className="bg-white text-slate-950 font-black border border-blue-200 rounded-xl px-3 py-2 text-center text-sm w-full focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={(e) => loginToClinicalConfigurations(e as unknown as React.FormEvent)}
+                      className="bg-blue-700 text-white font-black text-xs px-4 rounded-xl"
+                    >
+                      Entrar
+                    </button>
+                  </div>
+                )}
+
+                <div>
+                  <label className="flex items-center gap-3 text-2xl font-black text-blue-950 mb-3">
+                    <Calendar className="w-7 h-7 text-blue-600" />
+                    Idade
+                  </label>
+                  <div className="h-20 rounded-3xl border-2 border-slate-200 bg-white shadow-inner flex items-center justify-between px-3">
+                    <button type="button" onClick={() => setWelcomeAge(age => Math.max(1, age - 1))} className="w-16 h-16 rounded-2xl bg-blue-50 border border-blue-100 text-blue-800 flex items-center justify-center active:scale-95">
+                      <Minus className="w-8 h-8" />
+                    </button>
+                    <div className="flex items-baseline gap-4">
+                      <span className="text-5xl font-black text-blue-950 tabular-nums">{welcomeAge}</span>
+                      <span className="text-2xl font-bold text-slate-700">anos</span>
+                    </div>
+                    <button type="button" onClick={() => setWelcomeAge(age => Math.min(18, age + 1))} className="w-16 h-16 rounded-2xl bg-blue-50 border border-blue-100 text-blue-800 flex items-center justify-center active:scale-95">
+                      <Plus className="w-9 h-9" />
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-3 text-2xl font-black text-green-700 mb-3">
+                    <User className="w-7 h-7 fill-current" />
+                    Nome
+                  </label>
+                  <input
+                    value={newPatientName}
+                    onChange={(e) => setNewPatientName(e.target.value)}
+                    placeholder="Digite o nome"
+                    className="w-full h-20 rounded-3xl border-2 border-slate-200 bg-white px-6 text-2xl font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-200 focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-3 text-2xl font-black text-violet-700 mb-4">
+                    <Users className="w-8 h-8 fill-current" />
+                    Escolha a versão
+                  </div>
+                  <div className="grid grid-cols-2 gap-6">
+                    {[
+                      { theme: 'boy' as const, label: 'Menino', src: '/pictograms/boy/quero.png' },
+                      { theme: 'girl' as const, label: 'Menina', src: '/pictograms/girl/quero.png' }
+                    ].map(option => (
+                      <button
+                        key={option.theme}
+                        type="button"
+                        onClick={() => setNewPatientTheme(option.theme)}
+                        className={`relative h-36 rounded-3xl border-4 bg-white overflow-hidden shadow-sm transition-all active:scale-95 ${
+                          newPatientTheme === option.theme
+                            ? option.theme === 'boy' ? 'border-blue-600 ring-4 ring-blue-100' : 'border-pink-500 ring-4 ring-pink-100'
+                            : 'border-slate-200'
+                        }`}
+                      >
+                        <span className={`absolute top-4 left-4 w-8 h-8 rounded-full border-4 bg-white ${
+                          newPatientTheme === option.theme
+                            ? option.theme === 'boy' ? 'border-blue-600' : 'border-pink-500'
+                            : 'border-slate-200'
+                        }`}>
+                          {newPatientTheme === option.theme && <span className={`block w-4 h-4 rounded-full m-1 ${option.theme === 'boy' ? 'bg-blue-600' : 'bg-pink-500'}`}></span>}
+                        </span>
+                        <img src={option.src} alt="" className="absolute right-3 bottom-1 h-32 w-32 object-contain" />
+                        <span className={`absolute bottom-3 left-0 right-0 text-2xl font-black ${option.theme === 'boy' ? 'text-blue-700' : 'text-pink-500'}`}>
+                          {option.label}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-3 text-2xl font-black text-blue-950 mb-3">
+                    <Volume2 className="w-7 h-7 text-blue-600" />
+                    Escolha a voz
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    {[
+                      { value: 'female' as const, label: 'Feminina', tone: 'pink' },
+                      { value: 'male' as const, label: 'Masculina', tone: 'blue' }
+                    ].map(option => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setWelcomeVoiceGender(option.value)}
+                        className={`h-16 rounded-2xl border-4 text-xl font-black transition-all active:scale-95 ${
+                          welcomeVoiceGender === option.value
+                            ? option.value === 'female'
+                              ? 'border-pink-500 bg-pink-50 text-pink-600 ring-4 ring-pink-100'
+                              : 'border-blue-600 bg-blue-50 text-blue-700 ring-4 ring-blue-100'
+                            : 'border-slate-200 bg-white text-slate-600'
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {patients.length > 0 && (
+                  <div className="rounded-2xl bg-slate-50 border border-slate-200 p-3">
+                    <p className="text-xs font-black uppercase text-slate-500 mb-2">Continuar perfil existente</p>
+                    <div className="flex gap-2 overflow-x-auto pb-1">
+                      {patients.slice(0, 4).map(p => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedPatientId(p.id);
+                            playTactileFeedback();
+                            setCurrentView('patient-grid');
+                          }}
+                          className="shrink-0 bg-white border border-slate-200 rounded-xl px-3 py-2 text-left shadow-sm"
+                        >
+                          <p className="text-sm font-black text-slate-900 max-w-[140px] truncate">{p.name}</p>
+                          <p className="text-[10px] font-bold text-slate-400">{p.recordNumber}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="w-full h-20 rounded-[28px] bg-gradient-to-r from-blue-700 to-blue-600 hover:from-blue-800 hover:to-blue-700 text-white text-3xl font-black shadow-xl flex items-center justify-center gap-4 active:scale-[0.99]"
+                >
+                  Começar
+                  <ArrowRight className="w-10 h-10" />
+                </button>
+              </form>
+            </section>
+          </div>
+        </div>
+      )}
+
+      {currentView === 'login' && false && (
         <div className="flex-1 flex flex-col justify-center items-center p-6 bg-gradient-to-br from-indigo-50/50 via-slate-100 to-indigo-50/30">
           
           <div className="max-w-5xl w-full grid grid-cols-1 md:grid-cols-12 gap-8 bg-white rounded-[32px] shadow-xl border border-gray-150 overflow-hidden min-h-[500px]">
