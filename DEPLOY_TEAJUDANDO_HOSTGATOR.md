@@ -1,4 +1,4 @@
-# Publicar ComunicaTEA em erpclinicatea.com/comunicatea
+# Publicar TEAjudando em erpclinicatea.com/comunicatea
 
 Pacote gerado para cPanel/HostGator com aplicativo Node.js.
 
@@ -46,4 +46,4 @@ O app fica instalavel em celulares/tablets pelo menu do navegador:
 
 ## Observacao
 
-O banco local do ComunicaTEA e criado em `data/db.json` dentro da pasta do app Node.js. Para producao com varios pacientes reais, faca backup frequente dessa pasta.
+O banco local do TEAjudando e criado em `data/db.json` dentro da pasta do app Node.js. Para producao com varios pacientes reais, faca backup frequente dessa pasta.

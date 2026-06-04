@@ -3,8 +3,8 @@
 ERP_DIR="../erpclinicatea"
 
 if [ -d "$ERP_DIR/.git" ]; then
-  echo "[ComunicaTEA] Sincronizando e publicando no ERP Clinica TEA..."
+  echo "[TEAjudando] Sincronizando e publicando no ERP Clinica TEA..."
   (cd "$ERP_DIR" && pnpm run comunicatea:publish)
 else
-  echo "[ComunicaTEA] ERP nao encontrado em $ERP_DIR. Sincronizacao ignorada."
+  echo "[TEAjudando] ERP nao encontrado em $ERP_DIR. Sincronizacao ignorada."
 fi

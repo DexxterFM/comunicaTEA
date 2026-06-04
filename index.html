@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>ComunicaTEA - Comunicação Alternativa</title>
+    <title>TEAjudando - Comunicação Alternativa</title>
     
     <!-- PWA configuration links and mobile-first safari options -->
     <link rel="manifest" href="%BASE_URL%manifest.json" />
@@ -23,10 +23,10 @@
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('%BASE_URL%sw.js', { scope: '%BASE_URL%' })
             .then((registration) => {
-              console.log('ComunicaTEA Service Worker registrado com sucesso:', registration.scope);
+              console.log('TEAjudando Service Worker registrado com sucesso:', registration.scope);
             })
             .catch((error) => {
-              console.error('Falha ao registrar o Service Worker do ComunicaTEA:', error);
+              console.error('Falha ao registrar o Service Worker do TEAjudando:', error);
             });
         });
       }

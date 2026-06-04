@@ -1,4 +1,4 @@
-# Guia de Migração PWA - ComunicaTEA para Codex
+# Guia de Migração PWA - TEAjudando para Codex
 
 Este arquivo foi gerado especificamente para que você (ou seu agente de IA no Codex) possa ler e implementar automaticamente os recursos de **PWA (Progressive Web App)**, **funcionamento offline** e a **notificação inteligente de instalação** no código-fonte original.
 
@@ -6,7 +6,7 @@ O recurso de PWA adicionado consiste em:
 1. configuração do manifesto de aplicativo (`manifest.json`)
 2. registrar um Service Worker (`sw.js`) para cachear recursos cruciais e permitir a inicialização offline
 3. ajustar o arquivo principal HTML (`index.html`) para registro e tags meta de dispositivo móvel
-4. incluir controle de estado no React/TypeScript (`App.tsx`) para o prompt de instalação (`beforeinstallprompt`) e o visualizador ("Dica Clínica: Instale o ComunicaTEA").
+4. incluir controle de estado no React/TypeScript (`App.tsx`) para o prompt de instalação (`beforeinstallprompt`) e o visualizador ("Dica Clínica: Instale o TEAjudando").
 
 ---
 
@@ -16,8 +16,8 @@ Crie o arquivo `/public/manifest.json` com o seguinte conteúdo exato para confi
 
 ```json
 {
-  "name": "ComunicaTEA - Comunicação Alternativa",
-  "short_name": "ComunicaTEA",
+  "name": "TEAjudando - Comunicação Alternativa",
+  "short_name": "TEAjudando",
   "description": "Sistema de AAC (Comunicação Alternativa e Ampliada) para crianças autistas, inspirado em TD Snap®.",
   "start_url": "/",
   "display": "standalone",
@@ -153,10 +153,10 @@ Insira as tags meta de PWA dentro da tag `<head>` e registre o Service Worker no
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js')
             .then((registration) => {
-              console.log('ComunicaTEA Service Worker registrado com sucesso:', registration.scope);
+              console.log('TEAjudando Service Worker registrado com sucesso:', registration.scope);
             })
             .catch((error) => {
-              console.error('Falha ao registrar o Service Worker do ComunicaTEA:', error);
+              console.error('Falha ao registrar o Service Worker do TEAjudando:', error);
             });
         });
       }
@@ -188,7 +188,7 @@ No topo do seu componente (`App.tsx`), declare o seguinte:
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt as any);
 
     window.addEventListener('appinstalled', () => {
-      console.log('ComunicaTEA instalado com sucesso!');
+      console.log('TEAjudando instalado com sucesso!');
       setDeferredPrompt(null);
       setShowInstallBanner(false);
     });
@@ -230,7 +230,7 @@ Posicione este bloco logo abaixo ou acima da grade de botões (no seu layout do 
                     </div>
                     <div className="text-left">
                       <h4 className="text-xs font-black text-slate-900 flex items-center gap-1.5 leading-none">
-                        Dica Clínica: Instale o ComunicaTEA em seu Dispositivo!
+                        Dica Clínica: Instale o TEAjudando em seu Dispositivo!
                         <span className="text-[9px] bg-emerald-600 text-white font-mono px-1.5 py-0.5 rounded font-black uppercase">PWA</span>
                       </h4>
                       <p className="text-[10.5px] text-gray-500 mt-1 font-medium leading-relaxed max-w-[450px]">

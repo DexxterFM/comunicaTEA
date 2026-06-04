@@ -219,17 +219,17 @@ export default function App() {
   const [showInstallHelpDialog, setShowInstallHelpDialog] = useState<boolean>(false);
 
   // Google Drive Integration States
-  const [gdriveClientId, setGdriveClientId] = useState<string>(() => localStorage.getItem('comunicatea_gdrive_client_id') || '');
-  const [gdriveAccessToken, setGdriveAccessToken] = useState<string>(() => localStorage.getItem('comunicatea_gdrive_token') || '');
+  const [gdriveClientId, setGdriveClientId] = useState<string>(() => localStorage.getItem('teajudando_gdrive_client_id') || '');
+  const [gdriveAccessToken, setGdriveAccessToken] = useState<string>(() => localStorage.getItem('teajudando_gdrive_token') || '');
   const [gdriveUser, setGdriveUser] = useState<any>(null);
   const [gdriveFiles, setGdriveFiles] = useState<any[]>([]);
   const [isGdriveLoading, setIsGdriveLoading] = useState<boolean>(false);
-  const [isGdriveDemoMode, setIsGdriveDemoMode] = useState<boolean>(() => localStorage.getItem('comunicatea_gdrive_demo') === 'true');
+  const [isGdriveDemoMode, setIsGdriveDemoMode] = useState<boolean>(() => localStorage.getItem('teajudando_gdrive_demo') === 'true');
   const [gdriveDemoFiles, setGdriveDemoFiles] = useState<any[]>(() => {
-    const saved = localStorage.getItem('comunicatea_gdrive_demo_files');
+    const saved = localStorage.getItem('teajudando_gdrive_demo_files');
     return saved ? JSON.parse(saved) : [
-      { id: 'demo-file-1', name: 'comunicatea_backup_pedro_henrique_2026.json', size: 14500, modifiedTime: new Date(Date.now() - 86400000 * 2).toISOString() },
-      { id: 'demo-file-2', name: 'comunicatea_backup_carla_antunes_2026.json', size: 12400, modifiedTime: new Date(Date.now() - 86400000 * 5).toISOString() }
+      { id: 'demo-file-1', name: 'teajudando_backup_pedro_henrique_2026.json', size: 14500, modifiedTime: new Date(Date.now() - 86400000 * 2).toISOString() },
+      { id: 'demo-file-2', name: 'teajudando_backup_carla_antunes_2026.json', size: 12400, modifiedTime: new Date(Date.now() - 86400000 * 5).toISOString() }
     ];
   });
 
@@ -244,7 +244,7 @@ export default function App() {
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt as any);
 
     window.addEventListener('appinstalled', () => {
-      console.log('ComunicaTEA instalado com sucesso!');
+      console.log('TEAjudando instalado com sucesso!');
       setDeferredPrompt(null);
       setShowInstallBanner(false);
     });
@@ -261,8 +261,8 @@ export default function App() {
       setVocabFilterList(profile.vocabularyFilterList || "Água, Comer, Brincar, Dormir, Banheiro, Xixi, Cocô, Mamãe, Papai, Sim, Não, Dor");
       
       const themeVal = profile.genderTheme || 'neutral';
-      window.__comunicateaActiveTheme__ = themeVal;
-      localStorage.setItem('comunicatea_active_theme', themeVal);
+      window.__teajudandoActiveTheme__ = themeVal;
+      localStorage.setItem('teajudando_active_theme', themeVal);
 
       try {
         const parsed = JSON.parse(profile.pronunciationExceptions || '{}');
@@ -536,7 +536,7 @@ export default function App() {
       (window.navigator as any).standalone === true;
 
     if (alreadyInstalled) {
-      setSuccessToast('O ComunicaTEA já está instalado neste dispositivo.');
+      setSuccessToast('O TEAjudando já está instalado neste dispositivo.');
       setTimeout(() => setSuccessToast(null), 3600);
       return;
     }
@@ -761,7 +761,7 @@ export default function App() {
     const name = newPatientName.trim();
 
     if (!name) {
-      setSuccessToast('Digite o nome para configurar o ComunicaTEA.');
+      setSuccessToast('Digite o nome para configurar o TEAjudando.');
       setTimeout(() => setSuccessToast(null), 3600);
       return;
     }
@@ -858,7 +858,7 @@ export default function App() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObj, null, 2));
       const downloadAnchor = document.createElement('a');
       downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `comunicatea_backup_${patientData.name.toLowerCase().replace(/\s+/g, '_')}.json`);
+      downloadAnchor.setAttribute("download", `teajudando_backup_${patientData.name.toLowerCase().replace(/\s+/g, '_')}.json`);
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
@@ -917,9 +917,9 @@ export default function App() {
       alert("Por favor, insira o seu Google Client ID de Terapeuta no painel de configurações antes de conectar.");
       return;
     }
-    localStorage.setItem('comunicatea_gdrive_client_id', gdriveClientId);
+    localStorage.setItem('teajudando_gdrive_client_id', gdriveClientId);
     setIsGdriveDemoMode(false);
-    localStorage.removeItem('comunicatea_gdrive_demo');
+    localStorage.removeItem('teajudando_gdrive_demo');
 
     const redirectUri = window.location.origin + '/';
     const scopes = [
@@ -942,7 +942,7 @@ export default function App() {
     setGdriveAccessToken('');
     setGdriveUser(null);
     setGdriveFiles([]);
-    localStorage.removeItem('comunicatea_gdrive_token');
+    localStorage.removeItem('teajudando_gdrive_token');
     triggerToastNotification('Sessão do Google Drive encerrada.');
   };
 
@@ -969,7 +969,7 @@ export default function App() {
   const fetchGdriveFilesList = async (token: string) => {
     setIsGdriveLoading(true);
     try {
-      const q = encodeURIComponent("name contains 'comunicatea_backup_' and mimeType = 'application/json' and trashed = false");
+      const q = encodeURIComponent("name contains 'teajudando_backup_' and mimeType = 'application/json' and trashed = false");
       const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name,size,modifiedTime)&orderBy=modifiedTime desc`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -1018,7 +1018,7 @@ export default function App() {
       };
 
       const safePatientName = patientData.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_');
-      const fileName = `comunicatea_backup_${safePatientName}_${Date.now().toString().slice(-4)}.json`;
+      const fileName = `teajudando_backup_${safePatientName}_${Date.now().toString().slice(-4)}.json`;
 
       if (isGdriveDemoMode) {
         setTimeout(() => {
@@ -1030,7 +1030,7 @@ export default function App() {
           };
           const updated = [newMockFile, ...gdriveDemoFiles];
           setGdriveDemoFiles(updated);
-          localStorage.setItem('comunicatea_gdrive_demo_files', JSON.stringify(updated));
+          localStorage.setItem('teajudando_gdrive_demo_files', JSON.stringify(updated));
           triggerToastNotification(`Backup "${fileName}" salvo na Nuvem Cooperativa (Demonstração)!`);
           setIsGdriveLoading(false);
         }, 600);
@@ -1048,7 +1048,7 @@ export default function App() {
         mimeType: 'application/json'
       };
 
-      const boundary = 'comunicatea_upload_boundary';
+      const boundary = 'teajudando_upload_boundary';
       const delimiter = `\r\n--${boundary}\r\n`;
       const closeDelimiter = `\r\n--${boundary}--`;
 
@@ -1099,7 +1099,7 @@ export default function App() {
       if (isGdriveDemoMode) {
         setTimeout(async () => {
           try {
-            const rawName = fileName.replace('comunicatea_backup_', '').replace('.json', '');
+            const rawName = fileName.replace('teajudando_backup_', '').replace('.json', '');
             const parsedName = rawName.split('_').slice(0, -1).join(' ');
             const finalName = parsedName ? parsedName.toUpperCase() : "Paciente Demonstrativo Nuvem";
 
@@ -1178,7 +1178,7 @@ export default function App() {
       backupObj = await res.json();
 
       if (!backupObj.patient || !backupObj.patient.name) {
-        alert("Formato de arquivo corrompido ou inadequado para o ERP ComunicaTEA.");
+        alert("Formato de arquivo corrompido ou inadequado para o ERP TEAjudando.");
         setIsGdriveLoading(false);
         return;
       }
@@ -1216,7 +1216,7 @@ export default function App() {
         setTimeout(() => {
           const updated = gdriveDemoFiles.filter(f => f.id !== fileId);
           setGdriveDemoFiles(updated);
-          localStorage.setItem('comunicatea_gdrive_demo_files', JSON.stringify(updated));
+          localStorage.setItem('teajudando_gdrive_demo_files', JSON.stringify(updated));
           triggerToastNotification(`[DEMO] Backup removido das simulações de nuvem.`);
           setIsGdriveLoading(false);
         }, 400);
@@ -1246,7 +1246,7 @@ export default function App() {
   const handleActivateDemoMode = () => {
     playTactileFeedback();
     setIsGdriveDemoMode(true);
-    localStorage.setItem('comunicatea_gdrive_demo', 'true');
+    localStorage.setItem('teajudando_gdrive_demo', 'true');
     setGdriveUser({
       name: "Terapeuta Demonstrativo",
       email: "terapeuta.tea.sandbox@gmail.com",
@@ -1258,7 +1258,7 @@ export default function App() {
   const handleDeactivateDemoMode = () => {
     playTactileFeedback();
     setIsGdriveDemoMode(false);
-    localStorage.removeItem('comunicatea_gdrive_demo');
+    localStorage.removeItem('teajudando_gdrive_demo');
     if (!gdriveAccessToken) {
       setGdriveUser(null);
     } else {
@@ -1276,7 +1276,7 @@ export default function App() {
       if (token && state === 'gdrive_auth') {
         window.location.hash = '';
         setGdriveAccessToken(token);
-        localStorage.setItem('comunicatea_gdrive_token', token);
+        localStorage.setItem('teajudando_gdrive_token', token);
         setCurrentView('clinician-panel');
         setClinicianTab('google-drive');
         fetchGdriveUserProfile(token);
@@ -1457,7 +1457,7 @@ export default function App() {
             <div className="w-16 h-16 rounded-3xl bg-blue-100 text-blue-700 flex items-center justify-center mx-auto mb-4">
               <Smartphone className="w-9 h-9" />
             </div>
-            <h2 className="text-2xl font-black text-blue-950">Instalar ComunicaTEA?</h2>
+            <h2 className="text-2xl font-black text-blue-950">Instalar TEAjudando?</h2>
             <p className="mt-2 text-sm font-bold text-slate-600 leading-relaxed">
               Este navegador não liberou o botão automático. No Android/Chrome, abra o menu do navegador e toque em <strong>Instalar app</strong>. No iPhone/iPad, toque em Compartilhar e depois em <strong>Adicionar à Tela de Início</strong>.
             </p>
@@ -1514,7 +1514,7 @@ export default function App() {
               </div>
 
               <h1 className="text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-none">
-                <span className="text-blue-950">Comunica</span><span className="text-rose-500">T</span><span className="text-lime-500">E</span><span className="text-sky-500">A</span>
+                <span className="text-blue-950">TEA</span><span className="text-rose-500">ju</span><span className="text-lime-500">dan</span><span className="text-sky-500">do</span>
               </h1>
               <p className="mt-5 lg:mt-7 text-xl lg:text-2xl font-black text-blue-950 leading-snug max-w-xl">
                 Comunicação que conecta,<br />aprendizado que transforma.
@@ -1753,7 +1753,7 @@ export default function App() {
                     <Smartphone className="w-6 h-6" />
                   </div>
                   <div>
-                    <h2 className="text-sm font-black text-slate-950 leading-tight">Baixar ComunicaTEA</h2>
+                    <h2 className="text-sm font-black text-slate-950 leading-tight">Baixar TEAjudando</h2>
                     <p className="text-xs text-slate-600 mt-1 leading-relaxed">
                       Instale no celular ou tablet e use em tela cheia, com acesso rápido pela tela inicial.
                     </p>
@@ -1887,7 +1887,7 @@ export default function App() {
                     </div>
                     <div className="text-left">
                       <h4 className="text-xs font-black text-slate-900 flex items-center gap-1.5 leading-none">
-                        Dica Clínica: Instale o ComunicaTEA em seu Dispositivo!
+                        Dica Clínica: Instale o TEAjudando em seu Dispositivo!
                         <span className="text-[9px] bg-emerald-600 text-white font-mono px-1.5 py-0.5 rounded font-black uppercase">PWA</span>
                       </h4>
                       <p className="text-[10.5px] text-gray-500 mt-1 font-medium leading-relaxed max-w-[450px]">
@@ -4187,7 +4187,7 @@ export default function App() {
                                 <div>
                                   <h4 className="text-xs font-black text-indigo-900">Seu Google Drive está vazio</h4>
                                   <p className="text-[10.5px] text-gray-400 mt-1 max-w-[320px] mx-auto font-medium leading-relaxed">
-                                    Nenhuma cópia de prontuário JSON `comunicatea_backup_` encontrada. Clique em <strong>"Criar Novo Ponto de Backup"</strong> ao lado hoje mesmo para proteger seus dados históricos.
+                                    Nenhuma cópia de prontuário JSON `teajudando_backup_` encontrada. Clique em <strong>"Criar Novo Ponto de Backup"</strong> ao lado hoje mesmo para proteger seus dados históricos.
                                   </p>
                                 </div>
                               </div>
@@ -4248,7 +4248,7 @@ export default function App() {
                     <div className="border-t border-gray-150 pt-3 text-[10px] text-gray-400 leading-normal flex items-start gap-1.5 font-medium">
                       <span>🔒</span>
                       <span>
-                        Sua privacidade é respeitada por completo: o ERP ComunicaTEA utiliza permissões restritas (escopo `drive.file`) para que o aplicativo possa criar, ler e editar apenas os arquivos de backup JSON que ele mesmo gerar, protegendo todos os seus outros documentos pessoais no Google Drive.
+                        Sua privacidade é respeitada por completo: o ERP TEAjudando utiliza permissões restritas (escopo `drive.file`) para que o aplicativo possa criar, ler e editar apenas os arquivos de backup JSON que ele mesmo gerar, protegendo todos os seus outros documentos pessoais no Google Drive.
                       </span>
                     </div>
 

@@ -12,7 +12,7 @@ interface PictogramSVGProps {
 
 declare global {
   interface Window {
-    __comunicateaActiveTheme__?: 'boy' | 'girl' | 'neutral';
+    __teajudandoActiveTheme__?: 'boy' | 'girl' | 'neutral';
   }
 }
 
@@ -123,7 +123,7 @@ export const PictogramSVG: React.FC<PictogramSVGProps> = ({
   void avatarConfig;
   const activeTheme =
     genderTheme ||
-    (typeof window !== 'undefined' ? window.__comunicateaActiveTheme__ : undefined) ||
+    (typeof window !== 'undefined' ? window.__teajudandoActiveTheme__ : undefined) ||
     'girl';
   const gender = activeTheme === 'boy' ? 'boy' : 'girl';
   const asset = pictogramAssetFor(label, emoji);

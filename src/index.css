@@ -9,7 +9,7 @@
 
 @media (orientation: portrait) and (max-width: 1024px) and (pointer: coarse) {
   #patient-only-canvas::after {
-    content: "Gire o celular ou tablet para usar o ComunicaTEA na horizontal.";
+    content: "Gire o celular ou tablet para usar o TEAjudando na horizontal.";
     position: fixed;
     inset: 0;
     z-index: 9999;
