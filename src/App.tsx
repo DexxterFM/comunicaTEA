@@ -216,6 +216,7 @@ export default function App() {
   // PWA (Progressive Web App) states
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallBanner, setShowInstallBanner] = useState<boolean>(true);
+  const [showInstallHelpDialog, setShowInstallHelpDialog] = useState<boolean>(false);
 
   // Google Drive Integration States
   const [gdriveClientId, setGdriveClientId] = useState<string>(() => localStorage.getItem('comunicatea_gdrive_client_id') || '');
@@ -530,18 +531,28 @@ export default function App() {
   // Helper action to invoke standard browser PWA install prompt
   const handlePWAInstallClick = async () => {
     playTactileFeedback();
-    if (!deferredPrompt) {
-      setSuccessToast('Para baixar: no Android/Chrome use o menu do navegador e toque em "Instalar app". No iPhone/iPad use Compartilhar e "Adicionar à Tela de Início".');
-      setTimeout(() => setSuccessToast(null), 5200);
-      setShowInstallBanner(true);
+    const alreadyInstalled =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as any).standalone === true;
+
+    if (alreadyInstalled) {
+      setSuccessToast('O ComunicaTEA já está instalado neste dispositivo.');
+      setTimeout(() => setSuccessToast(null), 3600);
       return;
     }
+
+    if (!deferredPrompt) {
+      setShowInstallHelpDialog(true);
+      return;
+    }
+
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     console.log(`PWA install choice accepted status: ${outcome}`);
     if (outcome === 'accepted') {
       setShowInstallBanner(false);
     }
+    setShowInstallHelpDialog(false);
     setDeferredPrompt(null);
   };
 
@@ -1437,6 +1448,42 @@ export default function App() {
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-indigo-900 border border-indigo-700 text-white shadow-xl px-5 py-3 rounded-2xl flex items-center gap-3 z-50 animate-bounce tracking-wide text-xs font-semibold print:hidden">
           <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" />
           <span>{successToast}</span>
+        </div>
+      )}
+
+      {showInstallHelpDialog && (
+        <div className="fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-sm flex items-center justify-center p-5 print:hidden">
+          <div className="w-full max-w-md bg-white rounded-[28px] shadow-2xl border border-white p-6 text-center">
+            <div className="w-16 h-16 rounded-3xl bg-blue-100 text-blue-700 flex items-center justify-center mx-auto mb-4">
+              <Smartphone className="w-9 h-9" />
+            </div>
+            <h2 className="text-2xl font-black text-blue-950">Instalar ComunicaTEA?</h2>
+            <p className="mt-2 text-sm font-bold text-slate-600 leading-relaxed">
+              Este navegador não liberou o botão automático. No Android/Chrome, abra o menu do navegador e toque em <strong>Instalar app</strong>. No iPhone/iPad, toque em Compartilhar e depois em <strong>Adicionar à Tela de Início</strong>.
+            </p>
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  playTactileFeedback();
+                  setShowInstallHelpDialog(false);
+                }}
+                className="h-14 rounded-2xl border-2 border-slate-200 bg-white text-slate-600 font-black active:scale-95"
+              >
+                Não
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  playTactileFeedback();
+                  setShowInstallHelpDialog(false);
+                }}
+                className="h-14 rounded-2xl bg-blue-700 text-white font-black shadow-lg active:scale-95"
+              >
+                Sim
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
