@@ -578,6 +578,11 @@ export default function App() {
   // Helper action to invoke standard browser PWA install prompt
   const handlePWAInstallClick = async () => {
     playTactileFeedback();
+    const userAgent = navigator.userAgent || '';
+    const isAndroid = /Android/i.test(userAgent);
+    const isAppleMobile = /iPhone|iPad|iPod/i.test(userAgent) || ((navigator as any).platform === 'MacIntel' && (navigator as any).maxTouchPoints > 1);
+    const androidApkUrl = '/downloads/TEAjudando-android.apk';
+    const iosStoreUrl = '';
     const alreadyInstalled =
       window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as any).standalone === true;
@@ -588,8 +593,29 @@ export default function App() {
       return;
     }
 
+    if (isAndroid) {
+      try {
+        const apkCheck = await fetch(androidApkUrl, { method: 'HEAD', cache: 'no-store' });
+        if (apkCheck.ok) {
+          setSuccessToast('Abrindo download do aplicativo TEAjudando.');
+          window.location.href = androidApkUrl;
+          setTimeout(() => setSuccessToast(null), 2800);
+          return;
+        }
+      } catch (e) {
+        console.warn('Native APK check failed:', e);
+      }
+    }
+
+    if (isAppleMobile && iosStoreUrl) {
+      setSuccessToast('Abrindo App Store.');
+      window.location.href = iosStoreUrl;
+      setTimeout(() => setSuccessToast(null), 2800);
+      return;
+    }
+
     if (!deferredPrompt) {
-      setSuccessToast('Para instalar direto, abra esta página no Chrome/Edge e toque novamente em Baixar app.');
+      setSuccessToast('Pacote nativo ainda nao publicado neste servidor.');
       setTimeout(() => setSuccessToast(null), 4200);
       return;
     }
