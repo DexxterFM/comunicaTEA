@@ -1,0 +1,26 @@
+{
+  "name": "ComunicaTEA - Comunicação Alternativa",
+  "short_name": "ComunicaTEA",
+  "description": "Sistema de AAC (Comunicação Alternativa e Ampliada) para crianças autistas, inspirado em TD Snap®.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#cbd2db",
+  "theme_color": "#343b46",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "pwa_icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "pwa_icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["medical", "education", "utilities"]
+}

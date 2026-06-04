@@ -1,0 +1,6 @@
+{
+  "name": "ERP Clínica TEA - Comunicação Alternativa",
+  "description": "Módulo de Comunicação Alternativa e Aumentativa (CAA) para ERP Clínica TEA, com pranchas de comunicação, perfil do paciente, editor visual, histórico de uso e relatórios de evolução.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

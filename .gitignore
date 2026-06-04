@@ -1,0 +1,12 @@
+node_modules/
+extracted/
+data/
+build/
+dist/
+coverage/
+release-packages/
+.DS_Store
+*.log
+avatar-pictogram-check.png
+.env*
+!.env.example
