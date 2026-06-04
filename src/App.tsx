@@ -126,6 +126,7 @@ const CategoryIcon: React.FC<{ name: string; className?: string }> = ({ name, cl
     case 'BookOpen': return <BookOpen className={className} />;
     case 'Sparkles': return <Sparkles className={className} />;
     case 'Frown': return <Frown className={className} />;
+    case 'Activity': return <Activity className={className} />;
     default: return <Smile className={className} />;
   }
 };
@@ -173,6 +174,7 @@ export default function App() {
   const [showButtonModal, setShowButtonModal] = useState<boolean>(false);
   const [editingButton, setEditingButton] = useState<Partial<CommunicationButton> | null>(null);
   const [customImageBase64, setCustomImageBase64] = useState<string>('');
+  const [newBoardName, setNewBoardName] = useState<string>('');
   
   // Powerful Pictogram Library Local Search states inside Modal
   const [modalPicSearchQuery, setModalPicSearchQuery] = useState<string>('');
@@ -216,7 +218,6 @@ export default function App() {
   // PWA (Progressive Web App) states
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallBanner, setShowInstallBanner] = useState<boolean>(true);
-  const [showInstallHelpDialog, setShowInstallHelpDialog] = useState<boolean>(false);
 
   // Google Drive Integration States
   const [gdriveClientId, setGdriveClientId] = useState<string>(() => localStorage.getItem('teajudando_gdrive_client_id') || '');
@@ -294,6 +295,7 @@ export default function App() {
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const speechUnlockedRef = useRef(false);
   const speechRetryRef = useRef<number | null>(null);
+  const speechStartedRef = useRef(false);
   const profileAutoSaveTimerRef = useRef<number | null>(null);
   const lastSavedProfileRef = useRef('');
 
@@ -315,6 +317,15 @@ export default function App() {
     speechUnlockedRef.current = true;
     window.speechSynthesis.resume();
     setAvailableVoices(window.speechSynthesis.getVoices());
+
+    try {
+      const primer = new SpeechSynthesisUtterance(' ');
+      primer.lang = 'pt-BR';
+      primer.volume = 0;
+      window.speechSynthesis.speak(primer);
+    } catch (e) {
+      console.warn('Speech primer unavailable in this browser.', e);
+    }
   };
 
   const requestLandscapeOrientation = async () => {
@@ -446,12 +457,68 @@ export default function App() {
     }
   };
 
+  const pickPortugueseVoice = (voices: SpeechSynthesisVoice[]) => {
+    if (!profile) return null;
+    const ptBRVoices = voices.filter(v => v.lang.toLowerCase() === 'pt-br');
+    const portugueseVoices = ptBRVoices.length > 0
+      ? ptBRVoices
+      : voices.filter(v => v.lang.toLowerCase().startsWith('pt'));
+
+    const preferredNames = profile.preferredVoiceGender === 'male'
+      ? ['antonio', 'daniel', 'felipe']
+      : profile.preferredVoiceGender === 'female'
+        ? ['francisca', 'maria', 'luciana']
+        : ['francisca', 'antonio', 'google', 'maria', 'daniel'];
+
+    const scoreVoice = (voice: SpeechSynthesisVoice) => {
+      const name = voice.name.toLowerCase();
+      let score = 0;
+      if (voice.lang.toLowerCase() === 'pt-br') score += 100;
+      if (name.includes('natural') || name.includes('neural')) score += 30;
+      if (name.includes('microsoft')) score += 20;
+      if (name.includes('google')) score += 15;
+      preferredNames.forEach((needle, idx) => {
+        if (name.includes(needle)) score += 80 - idx * 10;
+      });
+      if (profile.preferredVoiceGender === 'male' && ['francisca', 'maria', 'luciana', 'helena'].some(n => name.includes(n))) score -= 70;
+      if (profile.preferredVoiceGender === 'female' && ['antonio', 'daniel', 'felipe'].some(n => name.includes(n))) score -= 70;
+      return score;
+    };
+
+    return portugueseVoices
+      .slice()
+      .sort((a, b) => scoreVoice(b) - scoreVoice(a))[0] || null;
+  };
+
+  const createSpeechUtterance = (textToSpeak: string, usePreferredVoice = true) => {
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    utterance.lang = 'pt-BR';
+    utterance.rate = profile?.preferredVoiceSpeechRate || 1.0;
+    utterance.pitch = profile?.preferredVoicePitch || 1.0;
+    utterance.volume = 1;
+
+    const voices = availableVoices.length > 0 ? availableVoices : window.speechSynthesis.getVoices();
+    if (availableVoices.length === 0 && voices.length > 0) {
+      setAvailableVoices(voices);
+    }
+    const matchedVoice = usePreferredVoice ? pickPortugueseVoice(voices) : null;
+    if (matchedVoice) {
+      utterance.voice = matchedVoice;
+    }
+    utterance.onstart = () => {
+      speechStartedRef.current = true;
+    };
+    utterance.onerror = (event) => {
+      console.warn('Speech synthesis error:', event.error);
+    };
+    return utterance;
+  };
+
   // Speaks out the Brazilian Portuguese text cleanly with customized parameters
   const speakText = (text: string) => {
     if (!('speechSynthesis' in window)) return;
     unlockSpeechSynthesis();
     window.speechSynthesis.resume();
-    window.speechSynthesis.cancel();
 
     // Process pronunciation exceptions from the patient's active profile
     let textToSpeak = text;
@@ -471,74 +538,24 @@ export default function App() {
       }
     }
 
-    const utterance = new SpeechSynthesisUtterance(textToSpeak);
-    utterance.lang = 'pt-BR';
-
-    if (profile) {
-      utterance.rate = profile.preferredVoiceSpeechRate || 1.0;
-      utterance.pitch = profile.preferredVoicePitch || 1.0;
-
-      const voices = availableVoices.length > 0 ? availableVoices : window.speechSynthesis.getVoices();
-      if (availableVoices.length === 0 && voices.length > 0) {
-        setAvailableVoices(voices);
-      }
-      const ptBRVoices = voices.filter(v => v.lang.toLowerCase() === 'pt-br');
-      const portugueseVoices = ptBRVoices.length > 0
-        ? ptBRVoices
-        : voices.filter(v => v.lang.toLowerCase().startsWith('pt'));
-
-      const preferredNames = profile.preferredVoiceGender === 'male'
-        ? ['antonio', 'daniel', 'felipe']
-        : profile.preferredVoiceGender === 'female'
-          ? ['francisca', 'maria', 'luciana']
-          : ['francisca', 'antonio', 'google', 'maria', 'daniel'];
-
-      const scoreVoice = (voice: SpeechSynthesisVoice) => {
-        const name = voice.name.toLowerCase();
-        let score = 0;
-        if (voice.lang.toLowerCase() === 'pt-br') score += 100;
-        if (name.includes('natural') || name.includes('neural')) score += 30;
-        if (name.includes('microsoft')) score += 20;
-        if (name.includes('google')) score += 15;
-        preferredNames.forEach((needle, idx) => {
-          if (name.includes(needle)) score += 80 - idx * 10;
-        });
-        if (profile.preferredVoiceGender === 'male' && ['francisca', 'maria', 'luciana', 'helena'].some(n => name.includes(n))) score -= 70;
-        if (profile.preferredVoiceGender === 'female' && ['antonio', 'daniel', 'felipe'].some(n => name.includes(n))) score -= 70;
-        return score;
-      };
-
-      const matchedVoice = portugueseVoices
-        .slice()
-        .sort((a, b) => scoreVoice(b) - scoreVoice(a))[0];
-
-      if (matchedVoice) {
-        utterance.voice = matchedVoice;
-      }
+    speechStartedRef.current = false;
+    if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+      window.speechSynthesis.cancel();
     }
-    const speakNow = () => {
-      window.speechSynthesis.resume();
-      window.speechSynthesis.speak(utterance);
-    };
 
-    speakNow();
+    window.speechSynthesis.speak(createSpeechUtterance(textToSpeak));
 
     if (speechRetryRef.current) {
       window.clearTimeout(speechRetryRef.current);
     }
 
     speechRetryRef.current = window.setTimeout(() => {
-      if (!window.speechSynthesis.speaking && !window.speechSynthesis.pending) {
+      if (!speechStartedRef.current && !window.speechSynthesis.speaking && !window.speechSynthesis.pending) {
         window.speechSynthesis.cancel();
-        const retryUtterance = new SpeechSynthesisUtterance(textToSpeak);
-        retryUtterance.lang = utterance.lang;
-        retryUtterance.rate = utterance.rate;
-        retryUtterance.pitch = utterance.pitch;
-        retryUtterance.voice = utterance.voice;
         window.speechSynthesis.resume();
-        window.speechSynthesis.speak(retryUtterance);
+        window.speechSynthesis.speak(createSpeechUtterance(textToSpeak, false));
       }
-    }, 180);
+    }, 250);
   };
 
   const speechWordForButton = (btn: CommunicationButton) => btn.label.trim();
@@ -572,18 +589,28 @@ export default function App() {
     }
 
     if (!deferredPrompt) {
-      setShowInstallHelpDialog(true);
+      setSuccessToast('Para instalar direto, abra esta página no Chrome/Edge e toque novamente em Baixar app.');
+      setTimeout(() => setSuccessToast(null), 4200);
       return;
     }
 
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log(`PWA install choice accepted status: ${outcome}`);
-    if (outcome === 'accepted') {
-      setShowInstallBanner(false);
+    try {
+      await deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`PWA install choice accepted status: ${outcome}`);
+      if (outcome === 'accepted') {
+        setShowInstallBanner(false);
+        setSuccessToast('Instalação iniciada.');
+      } else {
+        setSuccessToast('Instalação cancelada.');
+      }
+      setTimeout(() => setSuccessToast(null), 2800);
+      setDeferredPrompt(null);
+    } catch (e) {
+      console.warn('PWA install prompt failed:', e);
+      setSuccessToast('Instalação automática indisponível neste navegador.');
+      setTimeout(() => setSuccessToast(null), 3600);
     }
-    setShowInstallHelpDialog(false);
-    setDeferredPrompt(null);
   };
 
   // Button clicks trigger tactile feedback, speech, sentence recording, and analytics logging
@@ -1468,6 +1495,78 @@ export default function App() {
     r.readAsDataURL(file);
   };
 
+  const handleCreateBoard = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedPatientId) return;
+    const name = newBoardName.trim();
+    if (!name) {
+      alert("Informe o nome da nova prancha.");
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/boards', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          patientId: selectedPatientId,
+          name,
+          columns: profile?.gridSizeColumns || 5,
+          rows: profile?.gridSizeRows || 3,
+          isDefault: boards.length === 0
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error('Falha ao criar prancha');
+      }
+
+      const createdBoard = await res.json();
+      setBoards((current) => [...current, createdBoard]);
+      setSelectedBoardId(createdBoard.id);
+      setNewBoardName('');
+      setActiveCategoryId('all');
+      triggerToastNotification(`Prancha "${createdBoard.name}" criada.`);
+    } catch (error) {
+      console.error("Board creation failed:", error);
+      alert("Nao foi possivel criar a prancha agora.");
+    }
+  };
+
+  const openNewButtonEditorAt = (x: number, y: number) => {
+    if (!boardDetails || !selectedBoardId) return;
+    const firstCat = boardDetails.categories[0]?.id || '';
+    setEditingButton({
+      id: '',
+      boardId: selectedBoardId,
+      categoryId: firstCat,
+      label: '',
+      speechText: '',
+      imageUrl: '💬',
+      gridX: x,
+      gridY: y,
+      isVisible: true
+    });
+    setCustomImageBase64('');
+    setModalPicSearchQuery('');
+    setModalPicCategory('all');
+    setShowButtonModal(true);
+  };
+
+  const openNextFreeButtonEditor = () => {
+    if (!boardDetails || !profile) return;
+    for (let y = 0; y < (profile.gridSizeRows || 3); y++) {
+      for (let x = 0; x < (profile.gridSizeColumns || 5); x++) {
+        const hasButton = boardDetails.buttons.some((button) => button.gridX === x && button.gridY === y);
+        if (!hasButton) {
+          openNewButtonEditorAt(x, y);
+          return;
+        }
+      }
+    }
+    alert("A prancha atual nao tem espacos livres. Aumente linhas/colunas nas configuracoes ou edite um card existente.");
+  };
+
   // PIN security unlocks clinical area
   const loginToClinicalConfigurations = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1518,42 +1617,6 @@ export default function App() {
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-indigo-900 border border-indigo-700 text-white shadow-xl px-5 py-3 rounded-2xl flex items-center gap-3 z-50 animate-bounce tracking-wide text-xs font-semibold print:hidden">
           <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" />
           <span>{successToast}</span>
-        </div>
-      )}
-
-      {showInstallHelpDialog && (
-        <div className="fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-sm flex items-center justify-center p-5 print:hidden">
-          <div className="w-full max-w-md bg-white rounded-[28px] shadow-2xl border border-white p-6 text-center">
-            <div className="w-16 h-16 rounded-3xl bg-blue-100 text-blue-700 flex items-center justify-center mx-auto mb-4">
-              <Smartphone className="w-9 h-9" />
-            </div>
-            <h2 className="text-2xl font-black text-blue-950">Instalar TEAjudando?</h2>
-            <p className="mt-2 text-sm font-bold text-slate-600 leading-relaxed">
-              Este navegador não liberou o botão automático. No Android/Chrome, abra o menu do navegador e toque em <strong>Instalar app</strong>. No iPhone/iPad, toque em Compartilhar e depois em <strong>Adicionar à Tela de Início</strong>.
-            </p>
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  playTactileFeedback();
-                  setShowInstallHelpDialog(false);
-                }}
-                className="h-14 rounded-2xl border-2 border-slate-200 bg-white text-slate-600 font-black active:scale-95"
-              >
-                Não
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  playTactileFeedback();
-                  setShowInstallHelpDialog(false);
-                }}
-                className="h-14 rounded-2xl bg-blue-700 text-white font-black shadow-lg active:scale-95"
-              >
-                Sim
-              </button>
-            </div>
-          </div>
         </div>
       )}
 
@@ -1967,18 +2030,12 @@ export default function App() {
                   </div>
                   
                   <div className="flex sm:flex-col gap-2 shrink-0 w-full sm:w-auto justify-end">
-                    {deferredPrompt ? (
-                      <button
-                        onClick={handlePWAInstallClick}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-xl font-black text-xs shadow-md transition-all active:scale-95 text-center flex items-center justify-center gap-1.5 cursor-pointer flex-1 sm:flex-none"
-                      >
-                        📲 Instalar Agora (Grátis)
-                      </button>
-                    ) : (
-                      <div className="text-[9.5px] text-slate-800 bg-white border border-neutral-200 px-3 py-2 rounded-xl max-w-[240px] font-bold shadow-sm whitespace-pre-line leading-tight">
-                        💡 <strong>No iPad/iPhone:</strong> Toque no ícone de Compartilhar <span className="inline-block border border-gray-300 rounded px-1.5 py-0.5 bg-neutral-100">📤</span> e escolha <strong className="text-indigo-650">"Adicionar à Tela de Início"</strong>.
-                      </div>
-                    )}
+                    <button
+                      onClick={handlePWAInstallClick}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-xl font-black text-xs shadow-md transition-all active:scale-95 text-center flex items-center justify-center gap-1.5 cursor-pointer flex-1 sm:flex-none"
+                    >
+                      Baixar app
+                    </button>
                     <button
                       onClick={() => { playTactileFeedback(); setShowInstallBanner(false); }}
                       className="text-[10px] font-extrabold text-neutral-400 hover:text-neutral-600 transition-colors text-center shrink-0 leading-none py-1.5 px-2 hover:bg-neutral-100 rounded-lg cursor-pointer"
@@ -2606,7 +2663,10 @@ export default function App() {
                                       onMouseLeave: cancelButtonHold,
                                       onTouchCancel: cancelButtonHold,
                                     } : {
-                                      onClick: () => handleAACButtonClick(btn)
+                                      onPointerUp: (e: React.PointerEvent) => {
+                                        e.preventDefault();
+                                        handleAACButtonClick(btn);
+                                      }
                                     };
 
                                   const cellBorderColor = profile.highContrast 
@@ -2956,6 +3016,57 @@ export default function App() {
                   <p className="text-xs text-gray-500 leading-relaxed mb-4">
                     Altere o tamanho da matriz na aba de acessibilidade. Toque em qualquer cartão para editá-lo ou em um quadrado cinza com o ícone (+) para criar um novo botão na posição selecionada.
                   </p>
+
+                  <div className="mb-4 grid grid-cols-1 xl:grid-cols-[1fr_1.35fr_auto] gap-3 items-end border border-slate-200 rounded-2xl bg-slate-50 p-3">
+                    <div>
+                      <label className="block text-[10px] font-black uppercase text-slate-500 mb-1">Prancha ativa</label>
+                      <select
+                        value={selectedBoardId}
+                        onChange={(e) => {
+                          playTactileFeedback();
+                          setSelectedBoardId(e.target.value);
+                          setActiveCategoryId('all');
+                        }}
+                        className="w-full bg-white border border-slate-300 rounded-xl text-xs font-bold p-2.5 text-slate-900"
+                      >
+                        {boards.map((board) => (
+                          <option key={board.id} value={board.id}>{board.name}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <form onSubmit={handleCreateBoard} className="grid grid-cols-[1fr_auto] gap-2 items-end">
+                      <div>
+                        <label className="block text-[10px] font-black uppercase text-slate-500 mb-1">Criar prancha</label>
+                        <input
+                          type="text"
+                          value={newBoardName}
+                          onChange={(e) => setNewBoardName(e.target.value)}
+                          placeholder="Ex: Rotina da escola"
+                          className="w-full bg-white border border-slate-300 rounded-xl text-xs font-bold p-2.5 text-slate-900"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-1.5"
+                      >
+                        <PlusCircle className="w-4 h-4" />
+                        <span>Nova</span>
+                      </button>
+                    </form>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playTactileFeedback();
+                        openNextFreeButtonEditor();
+                      }}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-sm flex items-center justify-center gap-1.5"
+                    >
+                      <Upload className="w-4 h-4" />
+                      <span>Criar pictograma</span>
+                    </button>
+                  </div>
 
                   <div 
                     className="grid gap-3"

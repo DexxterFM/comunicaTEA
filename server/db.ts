@@ -6,20 +6,47 @@ const DB_FILE = path.join(process.cwd(), 'data', 'db.json');
 
 const CORE_PERSONAL_BUTTONS: { catId: string; label: string; speech: string; image: string; color: string; x: number; y: number }[] = [
   { catId: "cat-quero", label: "Quero", speech: "Quero", image: "quero", color: "bg-amber-50 text-amber-950 border-amber-200", x: 0, y: 0 },
-  { catId: "cat-quero", label: "Comer", speech: "comer", image: "comer", color: "bg-amber-50 text-amber-950 border-amber-200", x: 1, y: 0 },
-  { catId: "cat-quero", label: "Beber", speech: "beber", image: "beber", color: "bg-amber-50 text-amber-950 border-amber-200", x: 2, y: 0 },
-  { catId: "cat-quero", label: "Mais", speech: "mais", image: "mais", color: "bg-amber-50 text-amber-950 border-amber-200", x: 3, y: 0 },
-  { catId: "cat-quero", label: "Acabou", speech: "acabou", image: "acabou", color: "bg-amber-50 text-amber-950 border-amber-200", x: 4, y: 0 },
-  { catId: "cat-quero", label: "Banheiro", speech: "banheiro", image: "banheiro", color: "bg-amber-50 text-amber-950 border-amber-200", x: 0, y: 1 },
-  { catId: "cat-quero", label: "Dor", speech: "dor", image: "dor", color: "bg-amber-50 text-amber-950 border-amber-200", x: 1, y: 1 },
-  { catId: "cat-quero", label: "Brincar", speech: "brincar", image: "brincar", color: "bg-amber-50 text-amber-950 border-amber-200", x: 2, y: 1 },
-  { catId: "cat-quero", label: "Dormir", speech: "dormir", image: "dormir", color: "bg-amber-50 text-amber-950 border-amber-200", x: 3, y: 1 },
-  { catId: "cat-quero", label: "Ajuda", speech: "ajuda", image: "ajuda", color: "bg-amber-50 text-amber-950 border-amber-200", x: 4, y: 1 },
-  { catId: "cat-quero", label: "Maca", speech: "maca", image: "maca", color: "bg-amber-50 text-amber-950 border-amber-200", x: 0, y: 2 },
-  { catId: "cat-quero", label: "Banana", speech: "banana", image: "banana", color: "bg-amber-50 text-amber-950 border-amber-200", x: 1, y: 2 },
-  { catId: "cat-quero", label: "Biscoito", speech: "biscoito", image: "biscoito", color: "bg-amber-50 text-amber-950 border-amber-200", x: 2, y: 2 },
-  { catId: "cat-quero", label: "Tablet", speech: "tablet", image: "tablet", color: "bg-amber-50 text-amber-950 border-amber-200", x: 3, y: 2 },
-  { catId: "cat-quero", label: "Nao", speech: "nao", image: "nao", color: "bg-amber-50 text-amber-950 border-amber-200", x: 4, y: 2 }
+  { catId: "cat-quero", label: "Mais", speech: "Mais", image: "mais", color: "bg-amber-50 text-amber-950 border-amber-200", x: 1, y: 0 },
+  { catId: "cat-quero", label: "Acabou", speech: "Acabou", image: "acabou", color: "bg-amber-50 text-amber-950 border-amber-200", x: 2, y: 0 },
+  { catId: "cat-quero", label: "Sim", speech: "Sim", image: "sim", color: "bg-amber-50 text-amber-950 border-amber-200", x: 3, y: 0 },
+  { catId: "cat-quero", label: "Nao", speech: "Nao", image: "nao", color: "bg-amber-50 text-amber-950 border-amber-200", x: 4, y: 0 },
+  { catId: "cat-quero", label: "Ajuda", speech: "Ajuda", image: "ajuda", color: "bg-amber-50 text-amber-950 border-amber-200", x: 0, y: 1 },
+  { catId: "cat-quero", label: "Falar", speech: "Falar", image: "falar", color: "bg-amber-50 text-amber-950 border-amber-200", x: 1, y: 1 },
+  { catId: "cat-quero", label: "Ver", speech: "Ver", image: "ver", color: "bg-amber-50 text-amber-950 border-amber-200", x: 2, y: 1 },
+  { catId: "cat-quero", label: "Ouvir", speech: "Ouvir", image: "ouvir", color: "bg-amber-50 text-amber-950 border-amber-200", x: 3, y: 1 },
+  { catId: "cat-quero", label: "Sentar", speech: "Sentar", image: "sentar", color: "bg-amber-50 text-amber-950 border-amber-200", x: 4, y: 1 },
+  { catId: "cat-comida", label: "Comer", speech: "Comer", image: "comer", color: "bg-emerald-50 text-emerald-950 border-emerald-200", x: 0, y: 0 },
+  { catId: "cat-comida", label: "Beber", speech: "Beber", image: "beber", color: "bg-emerald-50 text-emerald-950 border-emerald-200", x: 1, y: 0 },
+  { catId: "cat-comida", label: "Agua", speech: "Agua", image: "agua", color: "bg-emerald-50 text-emerald-950 border-emerald-200", x: 2, y: 0 },
+  { catId: "cat-comida", label: "Suco", speech: "Suco", image: "suco", color: "bg-emerald-50 text-emerald-950 border-emerald-200", x: 3, y: 0 },
+  { catId: "cat-comida", label: "Leite", speech: "Leite", image: "leite", color: "bg-emerald-50 text-emerald-950 border-emerald-200", x: 4, y: 0 },
+  { catId: "cat-comida", label: "Almocar", speech: "Almocar", image: "almocar", color: "bg-emerald-50 text-emerald-950 border-emerald-200", x: 0, y: 1 },
+  { catId: "cat-comida", label: "Banana", speech: "Banana", image: "banana", color: "bg-emerald-50 text-emerald-950 border-emerald-200", x: 1, y: 1 },
+  { catId: "cat-comida", label: "Maca", speech: "Maca", image: "maca", color: "bg-emerald-50 text-emerald-950 border-emerald-200", x: 2, y: 1 },
+  { catId: "cat-comida", label: "Pao", speech: "Pao", image: "pao", color: "bg-emerald-50 text-emerald-950 border-emerald-200", x: 3, y: 1 },
+  { catId: "cat-comida", label: "Biscoito", speech: "Biscoito", image: "biscoito", color: "bg-emerald-50 text-emerald-950 border-emerald-200", x: 4, y: 1 },
+  { catId: "cat-necessidades", label: "Banheiro", speech: "Banheiro", image: "banheiro", color: "bg-cyan-50 text-cyan-950 border-cyan-200", x: 0, y: 0 },
+  { catId: "cat-necessidades", label: "Dormir", speech: "Dormir", image: "dormir", color: "bg-cyan-50 text-cyan-950 border-cyan-200", x: 1, y: 0 },
+  { catId: "cat-necessidades", label: "Dor", speech: "Dor", image: "dor", color: "bg-cyan-50 text-cyan-950 border-cyan-200", x: 2, y: 0 },
+  { catId: "cat-necessidades", label: "Quente", speech: "Quente", image: "quente", color: "bg-cyan-50 text-cyan-950 border-cyan-200", x: 3, y: 0 },
+  { catId: "cat-necessidades", label: "Frio", speech: "Frio", image: "frio", color: "bg-cyan-50 text-cyan-950 border-cyan-200", x: 4, y: 0 },
+  { catId: "cat-emocoes", label: "Feliz", speech: "Feliz", image: "feliz", color: "bg-violet-50 text-violet-950 border-violet-200", x: 0, y: 0 },
+  { catId: "cat-emocoes", label: "Triste", speech: "Triste", image: "triste", color: "bg-violet-50 text-violet-950 border-violet-200", x: 1, y: 0 },
+  { catId: "cat-emocoes", label: "Bravo", speech: "Bravo", image: "bravo", color: "bg-violet-50 text-violet-950 border-violet-200", x: 2, y: 0 },
+  { catId: "cat-emocoes", label: "Medo", speech: "Medo", image: "medo", color: "bg-violet-50 text-violet-950 border-violet-200", x: 3, y: 0 },
+  { catId: "cat-lazer", label: "Brincar", speech: "Brincar", image: "brincar", color: "bg-pink-50 text-pink-950 border-pink-200", x: 0, y: 0 },
+  { catId: "cat-lazer", label: "Bola", speech: "Bola", image: "bola", color: "bg-pink-50 text-pink-950 border-pink-200", x: 1, y: 0 },
+  { catId: "cat-lazer", label: "Cantar", speech: "Cantar", image: "cantar", color: "bg-pink-50 text-pink-950 border-pink-200", x: 2, y: 0 },
+  { catId: "cat-lazer", label: "Tablet", speech: "Tablet", image: "tablet", color: "bg-pink-50 text-pink-950 border-pink-200", x: 3, y: 0 },
+  { catId: "cat-lazer", label: "Ursinho", speech: "Ursinho", image: "ursinho", color: "bg-pink-50 text-pink-950 border-pink-200", x: 4, y: 0 },
+  { catId: "cat-lazer", label: "Parque", speech: "Parque", image: "parque", color: "bg-pink-50 text-pink-950 border-pink-200", x: 0, y: 1 },
+  { catId: "cat-lazer", label: "Correr", speech: "Correr", image: "correr", color: "bg-pink-50 text-pink-950 border-pink-200", x: 1, y: 1 },
+  { catId: "cat-escola", label: "Escola", speech: "Escola", image: "escola", color: "bg-indigo-50 text-indigo-950 border-indigo-200", x: 0, y: 0 },
+  { catId: "cat-escola", label: "Escrever", speech: "Escrever", image: "escrever", color: "bg-indigo-50 text-indigo-950 border-indigo-200", x: 1, y: 0 },
+  { catId: "cat-escola", label: "Pintar", speech: "Pintar", image: "pintar", color: "bg-indigo-50 text-indigo-950 border-indigo-200", x: 2, y: 0 },
+  { catId: "cat-locais", label: "Casa", speech: "Casa", image: "casa", color: "bg-sky-50 text-sky-950 border-sky-200", x: 0, y: 0 },
+  { catId: "cat-locais", label: "Clinica", speech: "Clinica", image: "clinica", color: "bg-sky-50 text-sky-950 border-sky-200", x: 1, y: 0 },
+  { catId: "cat-rotina", label: "Escovar os dentes", speech: "Escovar os dentes", image: "escovar-dentes", color: "bg-orange-50 text-orange-950 border-orange-200", x: 0, y: 0 }
 ];
 
 function normalizeCorePhraseButtons(db: AACDatabase): boolean {
@@ -32,7 +59,7 @@ function normalizeCorePhraseButtons(db: AACDatabase): boolean {
       imageUrl: btn.image,
       gridX: btn.x,
       gridY: btn.y,
-      categoryId: 'board-lucas-1-cat-quero',
+      categoryId: `board-lucas-1-${btn.catId}`,
       colorClass: btn.color
     })),
     'board-ana-1': CORE_PERSONAL_BUTTONS.map((btn, idx) => ({
@@ -42,7 +69,7 @@ function normalizeCorePhraseButtons(db: AACDatabase): boolean {
       imageUrl: btn.image,
       gridX: btn.x,
       gridY: btn.y,
-      categoryId: 'board-ana-1-cat-quero',
+      categoryId: `board-ana-1-${btn.catId}`,
       colorClass: btn.color
     })),
   };
@@ -69,7 +96,51 @@ function normalizeCorePhraseButtons(db: AACDatabase): boolean {
     }
   });
 
+  const coreCategories = [
+    { id: "cat-quero", name: "Essenciais", icon: "Smile", colorClass: "bg-amber-100 text-amber-900 border-amber-300 hover:bg-amber-150" },
+    { id: "cat-comida", name: "Comida", icon: "Coffee", colorClass: "bg-emerald-100 text-emerald-900 border-emerald-300 hover:bg-emerald-150" },
+    { id: "cat-necessidades", name: "Necessidades", icon: "Droplet", colorClass: "bg-cyan-100 text-cyan-900 border-cyan-300 hover:bg-cyan-150" },
+    { id: "cat-emocoes", name: "Emocoes", icon: "Heart", colorClass: "bg-violet-100 text-violet-900 border-violet-300 hover:bg-violet-150" },
+    { id: "cat-lazer", name: "Lazer", icon: "Sparkles", colorClass: "bg-pink-100 text-pink-900 border-pink-300 hover:bg-pink-150" },
+    { id: "cat-escola", name: "Escola", icon: "BookOpen", colorClass: "bg-indigo-100 text-indigo-900 border-indigo-300 hover:bg-indigo-150" },
+    { id: "cat-locais", name: "Locais", icon: "Users", colorClass: "bg-sky-100 text-sky-900 border-sky-300 hover:bg-sky-150" },
+    { id: "cat-rotina", name: "Rotina", icon: "Activity", colorClass: "bg-orange-100 text-orange-900 border-orange-300 hover:bg-orange-150" }
+  ];
+
   Object.entries(coreLayouts).forEach(([boardId, buttons]) => {
+    const allowedCategoryIds = new Set(coreCategories.map((category) => `${boardId}-${category.id}`));
+    const beforeCategoryFilterCount = db.board_categories.length;
+    db.board_categories = db.board_categories.filter((category) => {
+      if (category.boardId !== boardId) return true;
+      return allowedCategoryIds.has(category.id);
+    });
+    if (db.board_categories.length !== beforeCategoryFilterCount) {
+      changed = true;
+    }
+
+    coreCategories.forEach((category, orderIndex) => {
+      const categoryId = `${boardId}-${category.id}`;
+      let boardCategory = db.board_categories.find((cat) => cat.id === categoryId);
+      if (!boardCategory) {
+        db.board_categories.push({
+          id: categoryId,
+          boardId,
+          name: category.name,
+          colorClass: category.colorClass,
+          icon: category.icon,
+          orderIndex
+        });
+        changed = true;
+        return;
+      }
+      Object.entries({ name: category.name, colorClass: category.colorClass, icon: category.icon, orderIndex }).forEach(([key, value]) => {
+        if ((boardCategory as any)[key] !== value) {
+          (boardCategory as any)[key] = value;
+          changed = true;
+        }
+      });
+    });
+
     const allowedIds = new Set(buttons.map((button) => button.id));
     const beforeFilterCount = db.communication_buttons.length;
     db.communication_buttons = db.communication_buttons.filter((button) => {
@@ -215,15 +286,14 @@ export function initializeDB(): AACDatabase {
 
   // Seed standard categories for Lucas
   const categoriesList = [
-    { id: "cat-quero", name: "Quero", icon: "Smile", colorClass: "bg-amber-100 text-amber-900 border-amber-300 hover:bg-amber-150" },
-    { id: "cat-sinto", name: "Sinto", icon: "Heart", colorClass: "bg-purple-100 text-purple-900 border-purple-300 hover:bg-purple-150" },
-    { id: "cat-dor", name: "Dor", icon: "AlertTriangle", colorClass: "bg-red-100 text-red-900 border-red-300 hover:bg-red-150" },
-    { id: "cat-banheiro", name: "Banheiro", icon: "Droplet", colorClass: "bg-teal-100 text-teal-900 border-teal-300 hover:bg-teal-150" },
+    { id: "cat-quero", name: "Essenciais", icon: "Smile", colorClass: "bg-amber-100 text-amber-900 border-amber-300 hover:bg-amber-150" },
     { id: "cat-comida", name: "Comida", icon: "Coffee", colorClass: "bg-emerald-100 text-emerald-900 border-emerald-300 hover:bg-emerald-150" },
-    { id: "cat-pessoas", name: "Pessoas", icon: "Users", colorClass: "bg-sky-100 text-sky-900 border-sky-300 hover:bg-sky-150" },
+    { id: "cat-necessidades", name: "Necessidades", icon: "Droplet", colorClass: "bg-cyan-100 text-cyan-900 border-cyan-300 hover:bg-cyan-150" },
+    { id: "cat-emocoes", name: "Emocoes", icon: "Heart", colorClass: "bg-violet-100 text-violet-900 border-violet-300 hover:bg-violet-150" },
+    { id: "cat-lazer", name: "Lazer", icon: "Sparkles", colorClass: "bg-pink-100 text-pink-900 border-pink-300 hover:bg-pink-150" },
     { id: "cat-escola", name: "Escola", icon: "BookOpen", colorClass: "bg-indigo-100 text-indigo-900 border-indigo-300 hover:bg-indigo-150" },
-    { id: "cat-terapia", name: "Terapia", icon: "Sparkles", colorClass: "bg-pink-100 text-pink-900 border-pink-300 hover:bg-pink-150" },
-    { id: "cat-emocoes", name: "Emoções", icon: "Frown", colorClass: "bg-violet-100 text-violet-900 border-violet-300 hover:bg-violet-150" }
+    { id: "cat-locais", name: "Locais", icon: "Users", colorClass: "bg-sky-100 text-sky-900 border-sky-300 hover:bg-sky-150" },
+    { id: "cat-rotina", name: "Rotina", icon: "Activity", colorClass: "bg-orange-100 text-orange-900 border-orange-300 hover:bg-orange-150" }
   ];
 
   categoriesList.forEach((c, idx) => {
@@ -375,15 +445,14 @@ export function addPatient(patient: Patient, profile: CommunicationProfile, boar
 
   // Auto populate default categories for new patient's default board
   const categoriesList = [
-    { id: "cat-quero", name: "Quero", icon: "Smile", colorClass: "bg-amber-100 text-amber-900 border-amber-300 hover:bg-amber-150" },
-    { id: "cat-sinto", name: "Sinto", icon: "Heart", colorClass: "bg-purple-100 text-purple-900 border-purple-300 hover:bg-purple-150" },
-    { id: "cat-dor", name: "Dor", icon: "AlertTriangle", colorClass: "bg-red-100 text-red-900 border-red-300 hover:bg-red-150" },
-    { id: "cat-banheiro", name: "Banheiro", icon: "Droplet", colorClass: "bg-teal-100 text-teal-900 border-teal-300 hover:bg-teal-150" },
+    { id: "cat-quero", name: "Essenciais", icon: "Smile", colorClass: "bg-amber-100 text-amber-900 border-amber-300 hover:bg-amber-150" },
     { id: "cat-comida", name: "Comida", icon: "Coffee", colorClass: "bg-emerald-100 text-emerald-900 border-emerald-300 hover:bg-emerald-150" },
-    { id: "cat-pessoas", name: "Pessoas", icon: "Users", colorClass: "bg-sky-100 text-sky-900 border-sky-300 hover:bg-sky-150" },
+    { id: "cat-necessidades", name: "Necessidades", icon: "Droplet", colorClass: "bg-cyan-100 text-cyan-900 border-cyan-300 hover:bg-cyan-150" },
+    { id: "cat-emocoes", name: "Emocoes", icon: "Heart", colorClass: "bg-violet-100 text-violet-900 border-violet-300 hover:bg-violet-150" },
+    { id: "cat-lazer", name: "Lazer", icon: "Sparkles", colorClass: "bg-pink-100 text-pink-900 border-pink-300 hover:bg-pink-150" },
     { id: "cat-escola", name: "Escola", icon: "BookOpen", colorClass: "bg-indigo-100 text-indigo-900 border-indigo-300 hover:bg-indigo-150" },
-    { id: "cat-terapia", name: "Terapia", icon: "Sparkles", colorClass: "bg-pink-100 text-pink-900 border-pink-300 hover:bg-pink-150" },
-    { id: "cat-emocoes", name: "Emoções", icon: "Frown", colorClass: "bg-violet-100 text-violet-900 border-violet-300 hover:bg-violet-150" }
+    { id: "cat-locais", name: "Locais", icon: "Users", colorClass: "bg-sky-100 text-sky-900 border-sky-300 hover:bg-sky-150" },
+    { id: "cat-rotina", name: "Rotina", icon: "Activity", colorClass: "bg-orange-100 text-orange-900 border-orange-300 hover:bg-orange-150" }
   ];
 
   categoriesList.forEach((c, idx) => {

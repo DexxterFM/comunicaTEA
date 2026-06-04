@@ -353,15 +353,14 @@ async function startServer() {
 
     // Bootstrap basic categories for this board
     const categoriesList = [
-      { id: "cat-quero", name: "Quero", icon: "Smile", colorClass: "bg-amber-100 text-amber-900 border-amber-300 hover:bg-amber-150" },
-      { id: "cat-sinto", name: "Sinto", icon: "Heart", colorClass: "bg-purple-100 text-purple-900 border-purple-300 hover:bg-purple-150" },
-      { id: "cat-dor", name: "Dor", icon: "AlertTriangle", colorClass: "bg-red-100 text-red-900 border-red-300 hover:bg-red-150" },
-      { id: "cat-banheiro", name: "Banheiro", icon: "Droplet", colorClass: "bg-teal-100 text-teal-900 border-teal-300 hover:bg-teal-150" },
+      { id: "cat-quero", name: "Essenciais", icon: "Smile", colorClass: "bg-amber-100 text-amber-900 border-amber-300 hover:bg-amber-150" },
       { id: "cat-comida", name: "Comida", icon: "Coffee", colorClass: "bg-emerald-100 text-emerald-900 border-emerald-300 hover:bg-emerald-150" },
-      { id: "cat-pessoas", name: "Pessoas", icon: "Users", colorClass: "bg-sky-100 text-sky-900 border-sky-300 hover:bg-sky-150" },
+      { id: "cat-necessidades", name: "Necessidades", icon: "Droplet", colorClass: "bg-cyan-100 text-cyan-900 border-cyan-300 hover:bg-cyan-150" },
+      { id: "cat-emocoes", name: "Emocoes", icon: "Heart", colorClass: "bg-violet-100 text-violet-900 border-violet-300 hover:bg-violet-150" },
+      { id: "cat-lazer", name: "Lazer", icon: "Sparkles", colorClass: "bg-pink-100 text-pink-900 border-pink-300 hover:bg-pink-150" },
       { id: "cat-escola", name: "Escola", icon: "BookOpen", colorClass: "bg-indigo-100 text-indigo-900 border-indigo-300 hover:bg-indigo-150" },
-      { id: "cat-terapia", name: "Terapia", icon: "Sparkles", colorClass: "bg-pink-100 text-pink-900 border-pink-300 hover:bg-pink-150" },
-      { id: "cat-emocoes", name: "Emoções", icon: "Frown", colorClass: "bg-violet-100 text-violet-900 border-violet-300 hover:bg-violet-150" }
+      { id: "cat-locais", name: "Locais", icon: "Users", colorClass: "bg-sky-100 text-sky-900 border-sky-300 hover:bg-sky-150" },
+      { id: "cat-rotina", name: "Rotina", icon: "Activity", colorClass: "bg-orange-100 text-orange-900 border-orange-300 hover:bg-orange-150" }
     ];
 
     categoriesList.forEach((c, idx) => {
