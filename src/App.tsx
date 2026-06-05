@@ -575,9 +575,13 @@ export default function App() {
     return !allowed.some(word => labelLower.includes(word) || speechLower.includes(word));
   };
 
-  // Helper action to invoke standard browser PWA install prompt
+  // Helper action to download the signed Android APK directly from the site.
   const handlePWAInstallClick = async () => {
     playTactileFeedback();
+    setSuccessToast('Baixando APK do TEAjudando.');
+    window.location.assign(`${import.meta.env.BASE_URL}downloads/TEAjudando-android.apk`);
+    setTimeout(() => setSuccessToast(null), 2800);
+    return;
     const userAgent = navigator.userAgent || '';
     const isAndroid = /Android/i.test(userAgent);
     const isAppleMobile = /iPhone|iPad|iPod/i.test(userAgent) || ((navigator as any).platform === 'MacIntel' && (navigator as any).maxTouchPoints > 1);
