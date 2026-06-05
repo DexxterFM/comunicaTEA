@@ -17,6 +17,9 @@ O aplicativo nativo usa:
 - Configuracao Capacitor em `capacitor.config.ts`
 - Scripts de sincronizacao em `package.json`
 - Botao "Baixar app" preparado para baixar o APK direto em `/downloads/TEAjudando-android.apk`
+- APK Android assinado para download direto em `public/downloads/TEAjudando-android.apk`
+- AAB Android assinado para Google Play em `release-packages/TEAjudando-android-playstore.aab`
+- Chave local de upload em `release-packages/teajudando-upload-key.jks`
 
 ## Requisitos para gerar Android
 
@@ -62,6 +65,16 @@ public/downloads/TEAjudando-android.apk
 ```
 
 Depois rode build e deploy do site.
+
+Nesta maquina, o APK ja foi gerado e colocado nesse caminho.
+
+O pacote para Google Play ja foi gerado em:
+
+```text
+release-packages/TEAjudando-android-playstore.aab
+```
+
+Guarde a chave `release-packages/teajudando-upload-key.jks` e a senha local em lugar seguro. Sem essa chave, atualizacoes futuras do mesmo app no Google Play podem ficar bloqueadas.
 
 ## Requisitos para App Store
 
